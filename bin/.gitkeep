@@ -1,0 +1,2 @@
+# Optional: place yt-dlp.exe here when building the standalone Windows portable .exe with built-in YouTube downloads.
+# Download official yt-dlp.exe from: https://github.com/yt-dlp/yt-dlp/releases/latest
