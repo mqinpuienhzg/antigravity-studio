@@ -504,7 +504,7 @@ function createWindow(startHidden = false) {
     minHeight: 700,
     center: true,
     frame: false,
-    show: false,
+    show: !startHidden,
     backgroundColor: '#090b14',
     title: 'Antigravity Studio — by mqinpuienhzg',
     icon: createTrayIcon(),
