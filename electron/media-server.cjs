@@ -25,6 +25,13 @@ class LocalMediaServer {
     this.server = null;
     this.port = 0;
     this.registry = new Map(); // id -> absolute file path
+    this.controlToken = '';
+    this.onReveal = null;
+  }
+
+  setControl({ token, onReveal } = {}) {
+    this.controlToken = String(token || '');
+    this.onReveal = typeof onReveal === 'function' ? onReveal : null;
   }
 
   register(id, filePath) {
@@ -65,6 +72,23 @@ class LocalMediaServer {
         if (parsed.pathname === '/health') {
           res.writeHead(200, { 'Content-Type': 'application/json' });
           res.end(JSON.stringify({ ok: true, count: this.registry.size }));
+          return;
+        }
+
+        if (parsed.pathname === '/__studio/ping' || parsed.pathname === '/__studio/reveal') {
+          const reqToken = parsed.searchParams.get('token') || '';
+          if (!this.controlToken || reqToken !== this.controlToken) {
+            res.writeHead(403, { 'Content-Type': 'application/json' });
+            res.end(JSON.stringify({ ok: false, error: 'forbidden' }));
+            return;
+          }
+          if (parsed.pathname === '/__studio/reveal' && this.onReveal) {
+            try {
+              this.onReveal();
+            } catch (_) {}
+          }
+          res.writeHead(200, { 'Content-Type': 'application/json' });
+          res.end(JSON.stringify({ ok: true, pid: process.pid }));
           return;
         }
 

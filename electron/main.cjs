@@ -2,7 +2,9 @@
 
 const { app, BrowserWindow, dialog, ipcMain, Menu, nativeImage, session, shell, Tray } = require('electron');
 const { execFile, spawn } = require('child_process');
+const crypto = require('crypto');
 const fs = require('fs');
+const http = require('http');
 const os = require('os');
 const path = require('path');
 const { LocalMediaServer } = require('./media-server.cjs');
@@ -357,19 +359,110 @@ function syncIdeWindowSettings(payloadState, forceRestore = false, options = {})
   }
 }
 
-function createTrayIcon() {
-  const svg = `<svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 32 32">
-    <defs>
-      <linearGradient id="g" x1="0" y1="0" x2="1" y2="1">
-        <stop offset="0%" stop-color="#8b5cf6"/>
-        <stop offset="100%" stop-color="#06b6d4"/>
-      </linearGradient>
-    </defs>
-    <rect width="32" height="32" rx="8" fill="#0d1022"/>
-    <path d="M16 4 L21 13 L28 16 L21 19 L16 28 L11 19 L4 16 L11 13 Z" fill="url(#g)"/>
-  </svg>`;
-  const dataUrl = 'data:image/svg+xml;base64,' + Buffer.from(svg).toString('base64');
-  return nativeImage.createFromDataURL(dataUrl);
+function createTrayIcon(forTray = true) {
+  const candidates = [
+    path.join(__dirname, '..', 'build', 'icon.png'),
+    path.join(__dirname, '..', 'build', 'icon.ico'),
+    path.join(process.resourcesPath || '', 'build', 'icon.png'),
+    path.join(process.resourcesPath || '', 'build', 'icon.ico'),
+  ];
+  for (const iconPath of candidates) {
+    try {
+      if (iconPath && fs.existsSync(iconPath)) {
+        const img = nativeImage.createFromPath(iconPath);
+        if (img && !img.isEmpty()) {
+          return forTray ? img.resize({ width: 32, height: 32, quality: 'best' }) : img;
+        }
+      }
+    } catch (_) {}
+  }
+  // Fallback solid 16x16 violet PNG buffer (never SVG — Windows Tray rejects SVG data URLs!)
+  const fallbackPngB64 =
+    'iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAIAAACQkWg2AAAAKklEQVR4nGNk+P8fCTAxMAARAwNGBtL/DCQBIxMDA8P/fwwkARIMo40hAwAZRQgRjF7l1QAAAABJRU5ErkJggg==';
+  return nativeImage.createFromBuffer(Buffer.from(fallbackPngB64, 'base64'));
+}
+
+function getInstanceFilePath() {
+  try {
+    return path.join(app.getPath('userData'), 'antigravity-studio-data', 'instance.json');
+  } catch (_) {
+    return null;
+  }
+}
+
+function writeInstanceFile(port, token) {
+  try {
+    const filePath = getInstanceFilePath();
+    if (!filePath) return;
+    fs.mkdirSync(path.dirname(filePath), { recursive: true });
+    const data = {
+      pid: process.pid,
+      port,
+      token,
+      exe: getStableStartupExePath(),
+      startedAt: Date.now(),
+    };
+    fs.writeFileSync(filePath, JSON.stringify(data), 'utf8');
+  } catch (_) {}
+}
+
+function cleanupInstanceFile() {
+  try {
+    const filePath = getInstanceFilePath();
+    if (!filePath || !fs.existsSync(filePath)) return;
+    const parsed = JSON.parse(fs.readFileSync(filePath, 'utf8'));
+    if (parsed && parsed.pid === process.pid) {
+      fs.unlinkSync(filePath);
+    }
+  } catch (_) {}
+}
+
+function requestRunningInstanceReveal(timeoutMs = 1800) {
+  return new Promise((resolve) => {
+    try {
+      const filePath = getInstanceFilePath();
+      if (!filePath || !fs.existsSync(filePath)) {
+        resolve({ ok: false, reason: 'no-instance-file' });
+        return;
+      }
+      const info = JSON.parse(fs.readFileSync(filePath, 'utf8'));
+      if (!info || !info.port || !info.token) {
+        resolve({ ok: false, stalePid: info?.pid, reason: 'invalid-instance-file' });
+        return;
+      }
+      const req = http.request(
+        {
+          hostname: '127.0.0.1',
+          port: Number(info.port),
+          path: `/__studio/reveal?token=${encodeURIComponent(info.token)}`,
+          method: 'POST',
+          timeout: timeoutMs,
+        },
+        (res) => {
+          let body = '';
+          res.on('data', (chunk) => { body += chunk; });
+          res.on('end', () => {
+            try {
+              const json = JSON.parse(body || '{}');
+              resolve({ ok: res.statusCode === 200 && Boolean(json.ok), pid: json.pid || info.pid });
+            } catch (_) {
+              resolve({ ok: res.statusCode === 200, pid: info.pid });
+            }
+          });
+        }
+      );
+      req.on('timeout', () => {
+        req.destroy();
+        resolve({ ok: false, stalePid: info.pid, reason: 'timeout' });
+      });
+      req.on('error', () => {
+        resolve({ ok: false, stalePid: info.pid, reason: 'conn-error' });
+      });
+      req.end();
+    } catch (_) {
+      resolve({ ok: false, reason: 'exception' });
+    }
+  });
 }
 
 function sendToRenderer(channel, payload) {
@@ -507,7 +600,7 @@ function createWindow(startHidden = false) {
     show: !startHidden,
     backgroundColor: '#090b14',
     title: 'Antigravity Studio — by mqinpuienhzg',
-    icon: createTrayIcon(),
+    icon: createTrayIcon(false),
     webPreferences: {
       preload: path.join(__dirname, 'preload.cjs'),
       contextIsolation: true,
@@ -547,16 +640,18 @@ function createWindow(startHidden = false) {
     if (!isQuitting && store?.config?.minimizeToTray) {
       e.preventDefault();
       mainWindow.hide();
+      appendBootLog('MainWindow hidden to system tray');
     }
   });
 
   mainWindow.on('closed', () => {
+    appendBootLog('MainWindow closed');
     mainWindow = null;
   });
 }
 
 function createTray() {
-  tray = new Tray(createTrayIcon());
+  tray = new Tray(createTrayIcon(true));
   tray.setToolTip('Antigravity Studio by mqinpuienhzg — Bấm để mở giao diện');
   const menu = Menu.buildFromTemplate([
     {
@@ -1120,10 +1215,7 @@ function registerIpc() {
   ipcMain.on('window:close', () => mainWindow?.close());
 }
 
-const gotLock = app.requestSingleInstanceLock();
-if (!gotLock) {
-  app.quit();
-} else {
+function startPrimaryApp() {
   app.on('second-instance', (_ev, commandLine) => {
     const silentTray = Array.isArray(commandLine) && commandLine.includes('--tray');
     appendBootLog(`second-instance triggered (silentTray=${silentTray})`);
@@ -1141,8 +1233,17 @@ if (!gotLock) {
     cleanupLegacyStartupRemnants();
     syncIdeArgvJson();
 
+    const controlToken = crypto.randomBytes(16).toString('hex');
     mediaServer = new LocalMediaServer();
+    mediaServer.setControl({
+      token: controlToken,
+      onReveal: () => {
+        appendBootLog('HTTP /__studio/reveal triggered -> revealing mainWindow');
+        revealMainWindow();
+      },
+    });
     await mediaServer.start();
+    writeInstanceFile(mediaServer.port, controlToken);
     appendBootLog(`Media server listening on 127.0.0.1:${mediaServer.port}`);
 
     store = new StudioStore(app.getPath('userData'), mediaServer);
@@ -1165,6 +1266,7 @@ if (!gotLock) {
 
   app.on('before-quit', () => {
     isQuitting = true;
+    cleanupInstanceFile();
     if (carouselTimer) clearInterval(carouselTimer);
     if (cdp) cdp.stop();
     if (mediaServer) mediaServer.stop();
@@ -1175,4 +1277,49 @@ if (!gotLock) {
       app.quit();
     }
   });
+}
+
+const gotLock = app.requestSingleInstanceLock();
+if (!gotLock) {
+  const silentTray = process.argv.includes('--tray');
+  if (silentTray) {
+    app.quit();
+  } else {
+    // Bulletproof fallback: even if Chromium's ProcessSingleton hits Win32 Error 32 / UIPI block,
+    // wake the running Studio window directly via authenticated loopback HTTP control endpoint!
+    requestRunningInstanceReveal(1800).then((res) => {
+      if (res && res.ok) {
+        appendBootLog(`Secondary launch woke running Studio (pid=${res.pid}) via HTTP reveal`);
+        app.quit();
+        return;
+      }
+      // If stale/older zombie process holds lockfile without responding to HTTP reveal, clean ONLY stale Studio process and boot fresh!
+      appendBootLog(`Secondary launch found unresponsive lock (${res?.reason || 'unknown'}), recovering...`);
+      const tryRecoverBoot = () => {
+        setTimeout(() => {
+          if (app.requestSingleInstanceLock()) {
+            startPrimaryApp();
+          } else {
+            app.quit();
+          }
+        }, 450);
+      };
+      if (res && res.stalePid && Number(res.stalePid) !== process.pid) {
+        try {
+          process.kill(Number(res.stalePid));
+        } catch (_) {}
+        tryRecoverBoot();
+      } else if (process.platform === 'win32' && app.isPackaged) {
+        execFile(
+          'taskkill',
+          ['/F', '/IM', 'Antigravity Studio.exe', '/FI', `PID ne ${process.pid}`],
+          () => tryRecoverBoot()
+        );
+      } else {
+        tryRecoverBoot();
+      }
+    });
+  }
+} else {
+  startPrimaryApp();
 }

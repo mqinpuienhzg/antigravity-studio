@@ -1,6 +1,6 @@
 {
   "name": "antigravity-studio",
-  "version": "11.2.1",
+  "version": "11.2.2",
   "description": "Clear Liquid Glass & 60FPS Live Video Customizer for Google Antigravity IDE & Chat — Developed by mqinpuienhzg",
   "license": "MIT",
   "homepage": "https://github.com/mqinpuienhzg/antigravity-studio#readme",
@@ -37,7 +37,7 @@
   "build": {
     "appId": "io.antigravity.studio",
     "productName": "Antigravity Studio",
-    "compression": "store",
+    "compression": "normal",
     "afterPack": "scripts/afterPack.cjs",
     "directories": {
       "output": "release"
@@ -45,6 +45,8 @@
     "files": [
       "electron/**/*",
       "dist-ui/**/*",
+      "build/icon.png",
+      "build/icon.ico",
       "package.json",
       "!node_modules/electron/**",
       "!node_modules/electron-builder/**"
