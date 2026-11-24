@@ -4,7 +4,7 @@
 
 **Clear Optical Liquid Glass & 60FPS Live Video Customizer cho Google Antigravity IDE & Chat App**
 
-[![Version](https://img.shields.io/badge/version-11.2.0-a855f7?style=for-the-badge)](https://github.com/mqinpuienhzg/antigravity-studio/releases)
+[![Version](https://img.shields.io/badge/version-11.2.3-a855f7?style=for-the-badge)](https://github.com/mqinpuienhzg/antigravity-studio/releases)
 [![Platform](https://img.shields.io/badge/platform-Windows%2010%2F11%20x64-0ea5e9?style=for-the-badge&logo=windows)](https://github.com/mqinpuienhzg/antigravity-studio)
 [![License](https://img.shields.io/badge/license-MIT-10b981?style=for-the-badge)](LICENSE)
 [![Author](https://img.shields.io/badge/author-mqinpuienhzg-f472b6?style=for-the-badge&logo=github)](https://github.com/mqinpuienhzg)

@@ -1,5 +1,10 @@
 # Changelog
 
+## [11.2.3] — 2026-11-24
+- **Real Windows System Tray Icon (PNG/ICO):** Thay icon khay hệ thống từ SVG data URL sang PNG/ICO thật (`build/icon.png` & `build/icon.ico`), sửa triệt để lỗi Windows `notify_icon.cc` khiến icon bị ẩn khi thu xuống khay.
+- **Cross-Desktop Handover & Loopback Wakeup (`/__studio/handover`):** Chống kẹt khóa đơn tiến trình `Error code: 32` / khác phiên desktop — khi bấm mở lại app trên màn hình chính, tiến trình mới tự bàn giao quyền hiển thị hoặc đánh thức cửa sổ tức thì (<0.9s).
+- **Branded Portable Splash Screen & Smart Launcher:** Thêm màn hình chờ `build/splash.bmp` hiện ngay lập tức khi mở bản Portable (`186 MB`, nén `normal`) và cập nhật `start-studio.bat` tự ưu tiên bản chạy nhanh `win-unpacked`.
+
 ## [11.2.0] — 2026-11-24
 - **Author & GitHub Release Ready:** Chuẩn hóa toàn bộ dự án dưới tên tác giả **mqinpuienhzg** (`https://github.com/mqinpuienhzg/antigravity-studio`).
 - **Window Launch & Tray Fix:** Sửa triệt để lỗi mở lại `.exe` khi app đang ẩn dưới khay hệ thống không hiện cửa sổ (`revealMainWindow()` vượt Windows Foreground Lock + click đơn vào icon khay hệ thống).
