@@ -25,6 +25,7 @@ let store = null;
 let cdp = null;
 let carouselTimer = null;
 let carouselIdx = 0;
+let lastSecondInstanceAt = 0;
 
 function getBootLogPath() {
   try {
@@ -417,7 +418,7 @@ function cleanupInstanceFile() {
   } catch (_) {}
 }
 
-function requestRunningInstanceReveal(timeoutMs = 1800) {
+function callRunningInstanceControl(action = 'status', timeoutMs = 1500) {
   return new Promise((resolve) => {
     try {
       const filePath = getInstanceFilePath();
@@ -434,7 +435,7 @@ function requestRunningInstanceReveal(timeoutMs = 1800) {
         {
           hostname: '127.0.0.1',
           port: Number(info.port),
-          path: `/__studio/reveal?token=${encodeURIComponent(info.token)}`,
+          path: `/__studio/${action}?token=${encodeURIComponent(info.token)}`,
           method: 'POST',
           timeout: timeoutMs,
         },
@@ -444,7 +445,7 @@ function requestRunningInstanceReveal(timeoutMs = 1800) {
           res.on('end', () => {
             try {
               const json = JSON.parse(body || '{}');
-              resolve({ ok: res.statusCode === 200 && Boolean(json.ok), pid: json.pid || info.pid });
+              resolve({ ok: res.statusCode === 200 && Boolean(json.ok), ...json, pid: json.pid || info.pid });
             } catch (_) {
               resolve({ ok: res.statusCode === 200, pid: info.pid });
             }
@@ -1217,6 +1218,7 @@ function registerIpc() {
 
 function startPrimaryApp() {
   app.on('second-instance', (_ev, commandLine) => {
+    lastSecondInstanceAt = Date.now();
     const silentTray = Array.isArray(commandLine) && commandLine.includes('--tray');
     appendBootLog(`second-instance triggered (silentTray=${silentTray})`);
     if (silentTray) {
@@ -1240,6 +1242,22 @@ function startPrimaryApp() {
       onReveal: () => {
         appendBootLog('HTTP /__studio/reveal triggered -> revealing mainWindow');
         revealMainWindow();
+      },
+      onControl: (action) => {
+        if (action === 'status') {
+          return {
+            recentlyWokenByOs: Date.now() - lastSecondInstanceAt < 2500,
+            lastSecondInstanceAt,
+          };
+        }
+        if (action === 'handover') {
+          appendBootLog('HTTP /__studio/handover received -> yielding lock to active desktop instance');
+          isQuitting = true;
+          cleanupInstanceFile();
+          setTimeout(() => app.quit(), 40);
+          return { handingOver: true };
+        }
+        return {};
       },
     });
     await mediaServer.start();
@@ -1285,40 +1303,53 @@ if (!gotLock) {
   if (silentTray) {
     app.quit();
   } else {
-    // Bulletproof fallback: even if Chromium's ProcessSingleton hits Win32 Error 32 / UIPI block,
-    // wake the running Studio window directly via authenticated loopback HTTP control endpoint!
-    requestRunningInstanceReveal(1800).then((res) => {
-      if (res && res.ok) {
-        appendBootLog(`Secondary launch woke running Studio (pid=${res.pid}) via HTTP reveal`);
+    // Check whether the existing instance actually received our OS second-instance signal on THIS desktop!
+    // If yes -> it already revealed itself on the user's visible desktop; just exit cleanly.
+    // If NO  -> the existing instance is stuck on a different/hidden desktop (Win32 Error 32) or hung!
+    //           Ask it to handover cleanly so THIS process on the user's real desktop takes over and shows the UI!
+    const acquireAfterYield = (retriesLeft = 10) => {
+      if (app.requestSingleInstanceLock()) {
+        startPrimaryApp();
+        return;
+      }
+      if (retriesLeft <= 0) {
         app.quit();
         return;
       }
-      // If stale/older zombie process holds lockfile without responding to HTTP reveal, clean ONLY stale Studio process and boot fresh!
-      appendBootLog(`Secondary launch found unresponsive lock (${res?.reason || 'unknown'}), recovering...`);
-      const tryRecoverBoot = () => {
-        setTimeout(() => {
-          if (app.requestSingleInstanceLock()) {
-            startPrimaryApp();
-          } else {
-            app.quit();
-          }
-        }, 450);
-      };
-      if (res && res.stalePid && Number(res.stalePid) !== process.pid) {
-        try {
-          process.kill(Number(res.stalePid));
-        } catch (_) {}
-        tryRecoverBoot();
-      } else if (process.platform === 'win32' && app.isPackaged) {
-        execFile(
-          'taskkill',
-          ['/F', '/IM', 'Antigravity Studio.exe', '/FI', `PID ne ${process.pid}`],
-          () => tryRecoverBoot()
-        );
-      } else {
-        tryRecoverBoot();
-      }
-    });
+      setTimeout(() => acquireAfterYield(retriesLeft - 1), 180);
+    };
+
+    setTimeout(() => {
+      callRunningInstanceControl('status', 1500).then((status) => {
+        if (status && status.ok && status.recentlyWokenByOs) {
+          appendBootLog(`Secondary launch confirmed OS wakeup on same desktop (pid=${status.pid})`);
+          app.quit();
+          return;
+        }
+        if (status && status.ok) {
+          appendBootLog(`Existing instance (pid=${status.pid}) did not receive OS wakeup (cross-desktop/UIPI) -> requesting handover`);
+          callRunningInstanceControl('handover', 1200).then(() => {
+            setTimeout(() => acquireAfterYield(12), 180);
+          });
+          return;
+        }
+        appendBootLog(`Secondary launch found unresponsive lock (${status?.reason || 'unknown'}), recovering...`);
+        if (status && status.stalePid && Number(status.stalePid) !== process.pid) {
+          try {
+            process.kill(Number(status.stalePid));
+          } catch (_) {}
+          setTimeout(() => acquireAfterYield(10), 250);
+        } else if (process.platform === 'win32' && app.isPackaged) {
+          execFile(
+            'taskkill',
+            ['/F', '/IM', 'Antigravity Studio.exe', '/FI', `PID ne ${process.pid}`],
+            () => setTimeout(() => acquireAfterYield(10), 250)
+          );
+        } else {
+          setTimeout(() => acquireAfterYield(10), 250);
+        }
+      });
+    }, 180);
   }
 } else {
   startPrimaryApp();

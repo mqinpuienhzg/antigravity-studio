@@ -27,11 +27,13 @@ class LocalMediaServer {
     this.registry = new Map(); // id -> absolute file path
     this.controlToken = '';
     this.onReveal = null;
+    this.onControl = null;
   }
 
-  setControl({ token, onReveal } = {}) {
+  setControl({ token, onReveal, onControl } = {}) {
     this.controlToken = String(token || '');
     this.onReveal = typeof onReveal === 'function' ? onReveal : null;
+    this.onControl = typeof onControl === 'function' ? onControl : null;
   }
 
   register(id, filePath) {
@@ -75,20 +77,33 @@ class LocalMediaServer {
           return;
         }
 
-        if (parsed.pathname === '/__studio/ping' || parsed.pathname === '/__studio/reveal') {
+        if (
+          parsed.pathname === '/__studio/ping' ||
+          parsed.pathname === '/__studio/reveal' ||
+          parsed.pathname === '/__studio/status' ||
+          parsed.pathname === '/__studio/handover'
+        ) {
           const reqToken = parsed.searchParams.get('token') || '';
           if (!this.controlToken || reqToken !== this.controlToken) {
             res.writeHead(403, { 'Content-Type': 'application/json' });
             res.end(JSON.stringify({ ok: false, error: 'forbidden' }));
             return;
           }
-          if (parsed.pathname === '/__studio/reveal' && this.onReveal) {
+          const action = parsed.pathname.replace('/__studio/', '');
+          let extra = {};
+          if (action === 'reveal' && this.onReveal) {
             try {
               this.onReveal();
             } catch (_) {}
           }
+          if (this.onControl) {
+            try {
+              const result = this.onControl(action);
+              if (result && typeof result === 'object') extra = result;
+            } catch (_) {}
+          }
           res.writeHead(200, { 'Content-Type': 'application/json' });
-          res.end(JSON.stringify({ ok: true, pid: process.pid }));
+          res.end(JSON.stringify({ ok: true, pid: process.pid, ...extra }));
           return;
         }
 
