@@ -4,7 +4,7 @@
 
 **Clear Optical Liquid Glass & 60FPS Live Video Customizer cho Google Antigravity IDE & Chat — Viết lại bằng Rust + Tauri v2**
 
-[![Version](https://img.shields.io/badge/version-12.1.0--rust-f97316?style=for-the-badge&logo=rust)](https://github.com/mqinpuienhzg/antigravity-studio/releases)
+[![Version](https://img.shields.io/badge/version-12.1.1--rust-f97316?style=for-the-badge&logo=rust)](https://github.com/mqinpuienhzg/antigravity-studio/releases)
 [![Framework](https://img.shields.io/badge/Tauri-v2%20%2B%20WebView2-24c8db?style=for-the-badge&logo=tauri)](https://tauri.app/)
 [![Platform](https://img.shields.io/badge/platform-Windows%2010%2F11%20x64-0ea5e9?style=for-the-badge&logo=windows)](https://github.com/mqinpuienhzg/antigravity-studio)
 [![License](https://img.shields.io/badge/license-MIT-10b981?style=for-the-badge)](LICENSE)

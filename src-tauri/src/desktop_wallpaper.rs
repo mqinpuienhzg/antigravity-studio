@@ -3,7 +3,7 @@ use std::sync::{
     atomic::{AtomicBool, Ordering},
     Arc, Mutex,
 };
-use tauri::{AppHandle, Emitter, Manager, WebviewUrl, WebviewWindowBuilder};
+use tauri::{AppHandle, Emitter, Manager, PhysicalPosition, PhysicalSize, WebviewUrl, WebviewWindowBuilder};
 
 #[cfg(windows)]
 mod win32 {
@@ -28,8 +28,6 @@ mod win32 {
 
     pub const SM_CXSCREEN: i32 = 0;
     pub const SM_CYSCREEN: i32 = 1;
-    pub const SM_XVIRTUALSCREEN: i32 = 76;
-    pub const SM_YVIRTUALSCREEN: i32 = 77;
     pub const SM_CXVIRTUALSCREEN: i32 = 78;
     pub const SM_CYVIRTUALSCREEN: i32 = 79;
 
@@ -37,9 +35,8 @@ mod win32 {
     pub const GWL_EXSTYLE: i32 = -20;
     pub const WS_CHILD: isize = 0x4000_0000;
     pub const WS_VISIBLE: isize = 0x1000_0000;
-    pub const WS_POPUP: isize = 0x8000_0000u32 as isize;
-    pub const WS_CAPTION: isize = 0x00C0_0000;
-    pub const WS_THICKFRAME: isize = 0x0004_0000;
+    pub const WS_CLIPSIBLINGS: isize = 0x0400_0000;
+    pub const WS_CLIPCHILDREN: isize = 0x0200_0000;
     pub const WS_EX_TOOLWINDOW: isize = 0x0000_0080;
     pub const WS_EX_NOACTIVATE: isize = 0x0800_0000;
     pub const WS_EX_TRANSPARENT: isize = 0x0000_0020;
@@ -49,6 +46,7 @@ mod win32 {
     pub const SWP_FRAMECHANGED: u32 = 0x0020;
     pub const SWP_SHOWWINDOW: u32 = 0x0040;
     pub const SMTO_NORMAL: u32 = 0x0000;
+    pub const WM_SIZE: u32 = 0x0005;
     pub const SPI_SETDESKWALLPAPER: u32 = 0x0014;
     pub const SPIF_SENDCHANGE: u32 = 0x0002;
 
@@ -72,7 +70,9 @@ mod win32 {
             uTimeout: u32,
             lpdwResult: *mut usize,
         ) -> LRESULT;
+        pub fn PostMessageW(hWnd: HWND, Msg: u32, wParam: WPARAM, lParam: LPARAM) -> BOOL;
         pub fn EnumWindows(lpEnumFunc: EnumWindowsProc, lParam: LPARAM) -> BOOL;
+        pub fn EnumChildWindows(hWndParent: HWND, lpEnumFunc: EnumWindowsProc, lParam: LPARAM) -> BOOL;
         pub fn SetParent(hWndChild: HWND, hWndNewParent: HWND) -> HWND;
         pub fn SetWindowPos(
             hWnd: HWND,
@@ -83,11 +83,11 @@ mod win32 {
             cy: i32,
             uFlags: u32,
         ) -> BOOL;
-        pub fn GetWindowLongPtrW(hWnd: HWND, nIndex: i32) -> isize;
         pub fn SetWindowLongPtrW(hWnd: HWND, nIndex: i32, dwNewLong: isize) -> isize;
         pub fn GetSystemMetrics(nIndex: i32) -> i32;
         pub fn GetForegroundWindow() -> HWND;
         pub fn GetWindowRect(hWnd: HWND, lpRect: *mut RECT) -> BOOL;
+        pub fn GetClientRect(hWnd: HWND, lpRect: *mut RECT) -> BOOL;
         pub fn IsZoomed(hWnd: HWND) -> BOOL;
         pub fn IsWindowVisible(hWnd: HWND) -> BOOL;
         pub fn GetClassNameW(hWnd: HWND, lpClassName: *mut u16, nMaxCount: i32) -> i32;
@@ -116,7 +116,7 @@ mod win32 {
             if workerw != 0 {
                 let state = &mut *(lparam as *mut SearchState);
                 state.worker_w = workerw;
-                return 0; // stop enumeration
+                return 0;
             }
         }
         1
@@ -130,58 +130,81 @@ mod win32 {
                 return None;
             }
             let mut result: usize = 0;
-            // Standard undocumented Progman split message (Win10 + Win11)
             SendMessageTimeoutW(progman, 0x052C, 0x000D, 0x0001, SMTO_NORMAL, 1000, &mut result);
             SendMessageTimeoutW(progman, 0x052C, 0, 0, SMTO_NORMAL, 1000, &mut result);
 
-            // 1. Standard Win10 / Win11 <=23H2: sibling WorkerW right after the window owning SHELLDLL_DefView
             let mut state = SearchState { worker_w: 0 };
             EnumWindows(enum_find_workerw, &mut state as *mut SearchState as LPARAM);
             if state.worker_w != 0 {
                 return Some(state.worker_w);
             }
 
-            // 2. Windows 11 24H2 (26100+): WorkerW is a direct child of Progman
             let ww_cls = to_wide("WorkerW");
             let child_ww = FindWindowExW(progman, 0, ww_cls.as_ptr(), null());
             if child_ww != 0 {
                 return Some(child_ww);
             }
 
-            // 3. Fallback directly to Progman
             Some(progman)
         }
     }
 
-    pub fn desktop_bounds(span_all: bool) -> (i32, i32, i32, i32) {
+    pub fn target_physical_size(workerw: HWND, span_all: bool) -> (i32, i32) {
         unsafe {
             if span_all {
-                let x = GetSystemMetrics(SM_XVIRTUALSCREEN);
-                let y = GetSystemMetrics(SM_YVIRTUALSCREEN);
+                let mut cr = RECT::default();
+                if GetClientRect(workerw, &mut cr) != 0 && (cr.right - cr.left) >= 640 && (cr.bottom - cr.top) >= 480 {
+                    return (cr.right - cr.left, cr.bottom - cr.top);
+                }
                 let w = GetSystemMetrics(SM_CXVIRTUALSCREEN).max(640);
                 let h = GetSystemMetrics(SM_CYVIRTUALSCREEN).max(480);
-                (x, y, w, h)
+                (w, h)
             } else {
-                let w = GetSystemMetrics(SM_CXSCREEN).max(640);
-                let h = GetSystemMetrics(SM_CYSCREEN).max(480);
-                (0, 0, w, h)
+                let mut cr = RECT::default();
+                let sw = GetSystemMetrics(SM_CXSCREEN).max(640);
+                let sh = GetSystemMetrics(SM_CYSCREEN).max(480);
+                if GetClientRect(workerw, &mut cr) != 0 {
+                    let cw = cr.right - cr.left;
+                    let ch = cr.bottom - cr.top;
+                    // On single-monitor setups WorkerW client rect is the exact physical canvas
+                    if cw >= sw && ch >= sh && cw <= sw + 16 && ch <= sh + 16 {
+                        return (cw, ch);
+                    }
+                }
+                (sw, sh)
             }
         }
     }
 
-    pub fn attach_to_workerw(child_hwnd: HWND, workerw: HWND, w: i32, h: i32) -> bool {
+    struct ResizeTarget {
+        w: i32,
+        h: i32,
+    }
+
+    unsafe extern "system" fn enum_resize_children(child: HWND, lparam: LPARAM) -> BOOL {
+        let tgt = &*(lparam as *const ResizeTarget);
+        SetWindowPos(
+            child,
+            0,
+            0,
+            0,
+            tgt.w,
+            tgt.h,
+            SWP_NOZORDER | SWP_NOACTIVATE | SWP_SHOWWINDOW,
+        );
+        1
+    }
+
+    /// Forces zero-border pure child style + full physical coverage on both the Tauri host HWND and its WebView2 child HWNDs.
+    pub fn force_full_bleed_size(child_hwnd: HWND, w: i32, h: i32) {
         unsafe {
-            let style = GetWindowLongPtrW(child_hwnd, GWL_STYLE);
-            let new_style = (style & !(WS_POPUP | WS_CAPTION | WS_THICKFRAME)) | WS_CHILD | WS_VISIBLE;
-            SetWindowLongPtrW(child_hwnd, GWL_STYLE, new_style);
+            // Pure borderless child style — removes EVERY non-client DWM/frame border pixel!
+            let pure_style = WS_CHILD | WS_VISIBLE | WS_CLIPSIBLINGS | WS_CLIPCHILDREN;
+            SetWindowLongPtrW(child_hwnd, GWL_STYLE, pure_style);
 
-            let ex = GetWindowLongPtrW(child_hwnd, GWL_EXSTYLE);
-            let new_ex = ex | WS_EX_TOOLWINDOW | WS_EX_NOACTIVATE | WS_EX_TRANSPARENT;
-            SetWindowLongPtrW(child_hwnd, GWL_EXSTYLE, new_ex);
+            let pure_ex = WS_EX_TOOLWINDOW | WS_EX_NOACTIVATE | WS_EX_TRANSPARENT;
+            SetWindowLongPtrW(child_hwnd, GWL_EXSTYLE, pure_ex);
 
-            if SetParent(child_hwnd, workerw) == 0 {
-                return false;
-            }
             SetWindowPos(
                 child_hwnd,
                 0,
@@ -191,13 +214,36 @@ mod win32 {
                 h,
                 SWP_NOZORDER | SWP_NOACTIVATE | SWP_FRAMECHANGED | SWP_SHOWWINDOW,
             );
+
+            // Resize inner WebView2 host window(s) directly and notify WM_SIZE so ICoreWebView2Controller bounds match 100%
+            let tgt = ResizeTarget { w, h };
+            EnumChildWindows(
+                child_hwnd,
+                enum_resize_children,
+                &tgt as *const ResizeTarget as LPARAM,
+            );
+            let lparam = ((h as usize & 0xFFFF) << 16) | (w as usize & 0xFFFF);
+            PostMessageW(child_hwnd, WM_SIZE, 0, lparam as LPARAM);
+        }
+    }
+
+    pub fn attach_to_workerw(child_hwnd: HWND, workerw: HWND, w: i32, h: i32) -> bool {
+        unsafe {
+            let pure_style = WS_CHILD | WS_VISIBLE | WS_CLIPSIBLINGS | WS_CLIPCHILDREN;
+            SetWindowLongPtrW(child_hwnd, GWL_STYLE, pure_style);
+            let pure_ex = WS_EX_TOOLWINDOW | WS_EX_NOACTIVATE | WS_EX_TRANSPARENT;
+            SetWindowLongPtrW(child_hwnd, GWL_EXSTYLE, pure_ex);
+
+            if SetParent(child_hwnd, workerw) == 0 {
+                return false;
+            }
+            force_full_bleed_size(child_hwnd, w, h);
             true
         }
     }
 
     pub fn refresh_native_desktop_wallpaper() {
         unsafe {
-            // Re-read current Windows wallpaper path from registry and ask Explorer to repaint cleanly
             use winreg::enums::HKEY_CURRENT_USER;
             use winreg::RegKey;
             if let Ok(key) = RegKey::predef(HKEY_CURRENT_USER).open_subkey("Control Panel\\Desktop") {
@@ -228,7 +274,11 @@ mod win32 {
                 let cls = String::from_utf16_lossy(&cls_buf[..len as usize]);
                 if matches!(
                     cls.as_str(),
-                    "Progman" | "WorkerW" | "Shell_TrayWnd" | "Shell_SecondaryTrayWnd" | "NotifyIconOverflowWindow"
+                    "Progman"
+                        | "WorkerW"
+                        | "Shell_TrayWnd"
+                        | "Shell_SecondaryTrayWnd"
+                        | "NotifyIconOverflowWindow"
                 ) {
                     return false;
                 }
@@ -375,7 +425,16 @@ impl DesktopWallpaperManager {
                 *g = desktop_state.clone();
             }
 
+            let workerw = win32::find_or_spawn_workerw()
+                .ok_or_else(|| "Không tìm thấy lớp WorkerW của Windows Desktop.".to_string())?;
+            let (w, h) = win32::target_physical_size(workerw, span_all);
+
             if let Some(existing) = app.get_webview_window(DESKTOP_WINDOW_LABEL) {
+                let _ = existing.set_position(PhysicalPosition::new(0, 0));
+                let _ = existing.set_size(PhysicalSize::new(w as u32, h as u32));
+                if let Ok(hwnd) = existing.hwnd() {
+                    win32::force_full_bleed_size(hwnd.0 as isize, w, h);
+                }
                 let state_str = serde_json::to_string(&desktop_state).unwrap_or_else(|_| "{}".into());
                 let js = format!("if (window.__AGY_DESKTOP_APPLY__) window.__AGY_DESKTOP_APPLY__({state_str});");
                 let _ = existing.eval(&js);
@@ -384,18 +443,17 @@ impl DesktopWallpaperManager {
                 return Ok(self.get_status());
             }
 
-            let workerw = win32::find_or_spawn_workerw()
-                .ok_or_else(|| "Không tìm thấy lớp WorkerW của Windows Desktop.".to_string())?;
-            let (_x, _y, w, h) = win32::desktop_bounds(span_all);
             let url_str = format!("http://127.0.0.1:{media_port}/__studio/desktop-wallpaper.html");
             let parsed_url = url::Url::parse(&url_str).map_err(|e| e.to_string())?;
 
+            // shadow(false) + resizable(true) eliminates Windows 10 8px DWM frame inset & WM_GETMINMAXINFO clamping!
             let win = WebviewWindowBuilder::new(app, DESKTOP_WINDOW_LABEL, WebviewUrl::External(parsed_url))
                 .title("Antigravity Desktop Live")
                 .inner_size(w as f64, h as f64)
                 .position(0.0, 0.0)
                 .decorations(false)
-                .resizable(false)
+                .shadow(false)
+                .resizable(true)
                 .skip_taskbar(true)
                 .focusable(false)
                 .visible(false)
@@ -403,12 +461,34 @@ impl DesktopWallpaperManager {
                 .build()
                 .map_err(|e| format!("Không thể tạo cửa sổ nền Desktop: {e}"))?;
 
-            let hwnd = win.hwnd().map_err(|e| format!("Lỗi lấy HWND: {e}"))?;
-            if !win32::attach_to_workerw(hwnd.0 as isize, workerw, w, h) {
+            let hwnd_raw = win.hwnd().map_err(|e| format!("Lỗi lấy HWND: {e}"))?.0 as isize;
+            if !win32::attach_to_workerw(hwnd_raw, workerw, w, h) {
                 let _ = win.destroy();
                 return Err("SetParent vào WorkerW thất bại.".to_string());
             }
+            let _ = win.set_position(PhysicalPosition::new(0, 0));
+            let _ = win.set_size(PhysicalSize::new(w as u32, h as u32));
+            win32::force_full_bleed_size(hwnd_raw, w, h);
             let _ = win.show();
+
+            // Re-enforce exact physical full-bleed size after async WebView2 controller settles (kills any 8px right/bottom gap!)
+            for delay_ms in [180u64, 650] {
+                let app_c = app.clone();
+                tauri::async_runtime::spawn(async move {
+                    tokio::time::sleep(std::time::Duration::from_millis(delay_ms)).await;
+                    let app_m = app_c.clone();
+                    let _ = app_c.run_on_main_thread(move || {
+                        if let Some(dw) = app_m.get_webview_window(DESKTOP_WINDOW_LABEL) {
+                            let _ = dw.set_position(PhysicalPosition::new(0, 0));
+                            let _ = dw.set_size(PhysicalSize::new(w as u32, h as u32));
+                            if let Ok(hh) = dw.hwnd() {
+                                win32::force_full_bleed_size(hh.0 as isize, w, h);
+                            }
+                        }
+                    });
+                });
+            }
+
             self.active.store(true, Ordering::Relaxed);
             self.manual_paused.store(false, Ordering::Relaxed);
             self.auto_paused.store(false, Ordering::Relaxed);

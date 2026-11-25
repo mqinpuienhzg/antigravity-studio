@@ -1,6 +1,6 @@
 {
   "name": "antigravity-studio-rust",
-  "version": "12.1.0",
+  "version": "12.1.1",
   "description": "Antigravity Studio Rust — Ultra-Lightweight Tauri v2 + Rust Edition of Clear Liquid Glass & 60FPS Live Video Customizer for Google Antigravity IDE & Chat (by mqinpuienhzg)",
   "license": "MIT",
   "homepage": "https://github.com/mqinpuienhzg/antigravity-studio#readme",

@@ -299,7 +299,8 @@ pub fn run() {
             append_boot_log(
                 &log_path,
                 &format!(
-                    "App ready (Antigravity Studio Rust v12.0.0, hidden={start_hidden})"
+                    "App ready (Antigravity Studio Rust v{}, hidden={start_hidden})",
+                    env!("CARGO_PKG_VERSION")
                 ),
             );
 

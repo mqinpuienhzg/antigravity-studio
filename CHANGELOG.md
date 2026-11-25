@@ -1,5 +1,8 @@
 # Changelog
 
+## [12.1.1] — 2026-11-26
+- **Fix 8px Right/Bottom White Gap on Desktop Live Wallpaper:** Tắt khung bóng DWM ẩn (`shadow(false)`), bỏ khóa `WM_GETMINMAXINFO` (`resizable(true)`), ép kiểu cửa sổ con thuần Win32 (`WS_CHILD | WS_VISIBLE | WS_CLIPSIBLINGS | WS_CLIPCHILDREN`) đồng bộ `PhysicalSize` trực tiếp cho cả cửa sổ host lẫn WebView2 con sau khi `SetParent` vào `WorkerW` và overscan CSS 2px chống hở viền.
+
 ## [12.1.0] — 2026-11-26
 - **Native Rust Win32 `WorkerW` Live Desktop Wallpaper (`desktop_wallpaper.rs`):** Khôi phục hoàn chỉnh tính năng đặt video 60FPS / ảnh 2K làm hình nền động trực tiếp cho màn hình Windows Desktop (nút `Desktop` trên thanh trên cùng & từng thẻ chủ đề), hỗ trợ Windows 10 & Windows 11, tự nghỉ GPU khi mở game/ứng dụng toàn màn hình (`desktopSmartPause`) và tự khôi phục nền gốc Windows sạch sẽ khi tắt.
 
