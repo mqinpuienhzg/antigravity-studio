@@ -172,7 +172,7 @@ export default function SettingsTab({
           <span>Thông Tin Tác Giả & Dự Án Mã Nguồn Mở</span>
         </div>
         <div className="card-desc">
-          <strong>Antigravity Studio v11.2</strong> — Phát triển bởi <strong>mqinpuienhzg</strong>.
+          <strong>Antigravity Studio Rust v12.0</strong> (Tauri v2 + Rust) — Phát triển bởi <strong>mqinpuienhzg</strong>.
           <br />
           Mã nguồn mở MIT License trên GitHub:{' '}
           <a

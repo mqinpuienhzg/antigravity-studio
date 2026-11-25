@@ -1,17 +1,29 @@
 <div align="center">
 
-# ✨ Antigravity Studio
+# 🦀✨ Antigravity Studio Rust
 
-**Clear Optical Liquid Glass & 60FPS Live Video Customizer cho Google Antigravity IDE & Chat App**
+**Clear Optical Liquid Glass & 60FPS Live Video Customizer cho Google Antigravity IDE & Chat — Viết lại bằng Rust + Tauri v2**
 
-[![Version](https://img.shields.io/badge/version-11.2.3-a855f7?style=for-the-badge)](https://github.com/mqinpuienhzg/antigravity-studio/releases)
+[![Version](https://img.shields.io/badge/version-12.0.0--rust-f97316?style=for-the-badge&logo=rust)](https://github.com/mqinpuienhzg/antigravity-studio/releases)
+[![Framework](https://img.shields.io/badge/Tauri-v2%20%2B%20WebView2-24c8db?style=for-the-badge&logo=tauri)](https://tauri.app/)
 [![Platform](https://img.shields.io/badge/platform-Windows%2010%2F11%20x64-0ea5e9?style=for-the-badge&logo=windows)](https://github.com/mqinpuienhzg/antigravity-studio)
 [![License](https://img.shields.io/badge/license-MIT-10b981?style=for-the-badge)](LICENSE)
 [![Author](https://img.shields.io/badge/author-mqinpuienhzg-f472b6?style=for-the-badge&logo=github)](https://github.com/mqinpuienhzg)
 
-*Không chỉnh sửa file nhị phân gốc của IDE • Trong suốt 0px không vệt nối • Siêu nhẹ RAM • Tự giữ theme sau khi tắt/mở máy*
+*File chạy native chỉ **6.62 MB** • Chạy nền System Tray chỉ **8.1 MB Private RAM** • Không chỉnh sửa file gốc của IDE • Kèm sẵn 29 video live HD*
 
 </div>
+
+---
+
+## 📊 So Sánh Thực Tế: Bản Rust (`v12.0.0`) vs Bản Electron Cũ (`v11.2.3`)
+
+| Hạng mục (đo thực tế trên Windows 10/11 x64) | Bản Electron (`v11.2.3`) | Bản Rust (`v12.0.0`) |
+| :--- | :---: | :---: |
+| **Dung lượng file thực thi chính** | ~280 MB (`win-unpacked`) | **`6.62 MB`** (`Antigravity Studio Rust.exe`) |
+| **Gói phân phối đủ 29 video live HD** | `186 MB` (Portable) | **`73.06 MB`** (NSIS Installer / Portable ZIP) |
+| **RAM chạy nền (System Tray + đang gắn CDP)** | `812.34 MB` Private (`568.88 MB` WS) | **`8.10 MB` Private** (`15.85 MB` WS — nhẹ hơn **100×**) |
+| **Mở lại cửa sổ UI từ khay hệ thống** | ~0.88 giây | **`0.18 giây`** |
 
 ---
 
@@ -25,103 +37,70 @@
 
 ---
 
-## 🌟 Tính Năng Nổi Bật (Key Features)
+## 🌟 Tính Năng Nổi Bật
 
-- **💎 Clear Optical Liquid Glass (Kính Pha Lê Trong Suốt — Không Đục Trắng):**
-  - Toàn bộ nút bấm, tab file, thanh nhập Chat, bảng Cài đặt dùng hiệu ứng kính quang học trong suốt nhìn xuyên thẳng xuống video nền 60FPS với viền phản xạ ánh sáng sắc nét.
-  - Ẩn hoàn toàn thanh mờ Titlebar, Statusbar và vệt tối mép Chat khi chọn độ mờ `0%`.
-- **🎬 Kiến Trúc 1 Video Xuyên Suốt + Eco Single-Deck (Tiết Kiệm 50% RAM/VRAM):**
-  - IDE và Chat dùng chung **1 luồng video duy nhất**, phóng to/thu nhỏ/zoom (`Ctrl+`/`Ctrl-`) **luôn khớp tuyệt đối 0px**.
-  - Tự động thu gom bộ nhớ **Blob GC (`URL.revokeObjectURL`)** khi đổi theme và dùng **Poster Thumbnail tĩnh** cho lưới gallery — giảm hơn **800 MB Private RAM** so với render video hàng loạt.
-  - Chuyển 1 chạm giữa chế độ **Đồng bộ toàn màn hình** và **Chat & IDE riêng biệt**.
-- **🪟 Trong Suốt 3 Lớp Cho MỌI Màn Hình IDE:**
-  - Bao phủ liền mạch Code Editor, Chat Workspace, **Antigravity Settings** (Account, General, Appearance, Models, Browser), VS Code Settings, Extensions, **Terminal (`xterm.js`)**, Notification Toasts và Webview.
-- **🖥️ Xem Trước Trực Tiếp Chia Đôi Cạnh Phải (`Xem trước phải`):**
-  - Xem đồng thời **Antigravity IDE (trên)** + **Antigravity Chat & Linh vật tương tác (dưới)** ngay trong Studio theo thời gian thực khi rê chuột hoặc kéo thanh trượt.
-- **🦋 Linh Vật Tương Tác Tự Nhiên Như Người Thật:**
-  - Dõi theo hướng con trỏ chuột khi rê qua, **xoa đầu** (click vùng đầu) sẽ nghiêng đầu ửng má dịu dàng, click thân xoay vòng 8 phản ứng tự nhiên không trùng lặp, click vùng dưới sẽ né lùi trêu ghẹo, nháy đúp kích hoạt màn xoay 3D Encore.
-  - **Kéo thả tự do khắp màn hình** có độ nghiêng quán tính & đáp mềm, tự lưu vị trí vĩnh viễn.
-- **🎨 29+ Video Live HD Tuyển Chọn & Kho Mở Rộng Vô Hạn:**
-  - Kèm sẵn 29 video live HD tối ưu dung lượng, 8 ảnh nền 2K, 13 linh vật và trình duyệt tích hợp tải trực tiếp từ **MoeWalls, MotionBGs, Pixabay, Pexels, Wallhaven, Tenor, Giphy**.
-  - Hỗ trợ thả thêm `.mp4 / .webm / .gif / .jpg / .png` vào thư mục `Themes/` cạnh file `.exe`.
-- **⚡ Tự Động Tiêm Tức Thì Khi Mở Máy (`argv.json` + System Tray):**
-  - Tự đăng ký cờ CDP an toàn trong `~/.antigravity-ide/argv.json`, chạy ngầm dưới khay hệ thống (click đơn icon khay hệ thống hoặc mở lại `.exe` để bật ngay cửa sổ lên trên cùng).
+- **🦀 Backend 100% Native Rust (`src-tauri/src/`):**
+  - **Axum 0.8 + Tokio HTTP Media Server** hỗ trợ streaming **Byte-Range (`206 Partial Content`)** cho 29 video live HD 60FPS.
+  - **Tokio + `tokio-tungstenite` CDP Bridge** tự phát hiện cổng CDP của Antigravity IDE, theo dõi `DevToolsActivePort` bằng `notify`, tự phục hồi sau khởi động lạnh và đồng bộ layout IDE ↔ Chat tức thì.
+  - **Kiến trúc Tray tự hủy WebView2:** Đóng cửa sổ (`X`) sẽ giải phóng toàn bộ bộ nhớ WebView2 về mức **`~8 MB` Private RAM** mà vẫn giữ nền video & tự tiêm theme; click icon khay hệ thống mở lại giao diện trong `0.18 giây`.
+- **💎 Clear Optical Liquid Glass (Kính Pha Lê Trong Suốt):**
+  - Nhìn xuyên thẳng xuống video nền 60FPS không bị lớp nền trắng đục, ẩn sạch thanh mờ Titlebar, Statusbar và vệt bóng dọc mép Chat ở mức `0%`.
+  - Kiến trúc **1-Video Pass-Through** giữ IDE và Chat khớp tuyệt đối `0px` khi phóng to, thu nhỏ hoặc zoom.
+- **🖥️ Xem Trước Trực Tiếp Cạnh Phải & Linh Vật Tương Tác:**
+  - Khung xem trước chia đôi hiển thị đồng thời IDE + Chat ngay khi kéo thanh trượt.
+  - 13 linh vật tương tác tự nhiên: dõi chuột, xoa đầu ửng má, phản ứng đa dạng theo vùng chạm, kéo thả mượt & tự lưu vị trí.
+- **🔒 An Toàn Tuyệt Đối:**
+  - Không chỉnh sửa file nhị phân gốc của Antigravity IDE; chỉ đăng ký cờ CDP an toàn trong `~/.antigravity-ide/argv.json` và hỗ trợ nút **1 chạm về Bản gốc**.
 
 ---
 
 ## 🚀 Hướng Dẫn Cài Đặt & Sử Dụng Nhanh
 
-### Cách 1: Tải Bản Portable Chạy Ngay (Khuyên Dùng)
-1. Tải file **`Antigravity-Studio-Portable.exe`** trong mục [Releases](https://github.com/mqinpuienhzg/antigravity-studio/releases).
-2. Đặt vào một thư mục cố định (ví dụ `D:\AntigravityStudio\`) và nhấp đúp mở.
-3. Nhấn nút **Khởi động lại IDE** (hoặc **ÁP DỤNG THEME**) ở thanh trên cùng — Studio sẽ tự cấu hình CDP vĩnh viễn và phủ giao diện ngay lập tức.
+### Cách 1: Tải Bản Đóng Gói Chạy Ngay (Khuyên Dùng)
+1. Vào mục [Releases](https://github.com/mqinpuienhzg/antigravity-studio/releases) tải **`Antigravity Studio Rust_12.0.0_x64-setup.exe`** (`73 MB`, tự cài gọn không cần quyền Admin) hoặc bản **`Antigravity-Studio-Rust-v12.0.0-Portable.zip`** giải nén chạy thẳng.
+2. Mở **Antigravity Studio Rust** và nhấn **ÁP DỤNG THEME** (hoặc **Khởi động lại IDE** lần đầu để kích hoạt CDP vĩnh viễn).
 
 ### Cách 2: Tự Build Từ Mã Nguồn (Developers)
 
-**Yêu cầu:** Windows 10/11 (x64), Node.js 18+ (khuyên dùng Node 20/22+).
+**Yêu cầu (Windows 10/11 x64):** Node.js 18+, Rust (`rustup`, target `x86_64-pc-windows-msvc`), Visual Studio C++ Build Tools (Desktop development with C++), và Microsoft Edge WebView2 Runtime (có sẵn trên Windows 10/11).
 
-```bash
+```powershell
 # 1. Clone repository
 git clone https://github.com/mqinpuienhzg/antigravity-studio.git
 cd antigravity-studio
 
-# 2. Cài đặt thư viện
+# 2. Cài đặt gói giao diện & Tauri CLI
 npm install
 
-# 3. Chạy thử chế độ phát triển (Vite + Electron)
+# 3. Chạy thử chế độ phát triển (Vite + Rust)
 npm run dev
 
-# 4. Build UI & đóng gói file Portable (.exe)
-npm run build:ui
-npm run dist
+# 4. Build bản Release tối ưu (.exe + bộ cài NSIS)
+npm run build
 ```
 
-*(Tùy chọn)* Để bật tính năng tải video từ YouTube trực tiếp trong app khi tự build, tải `yt-dlp.exe` từ [yt-dlp Releases](https://github.com/yt-dlp/yt-dlp/releases/latest) và đặt vào thư mục `bin/yt-dlp.exe`.
-
-File `.exe` đóng gói sẽ xuất tại `release/Antigravity-Studio-Portable.exe`.
+*(Tùy chọn)* Để bật tính năng tải video từ YouTube trực tiếp trong app, tải `yt-dlp.exe` từ [yt-dlp Releases](https://github.com/yt-dlp/yt-dlp/releases/latest) và đặt vào thư mục `bin/yt-dlp.exe`.
 
 ---
 
-## 📁 Cấu Trúc Mã Nguồn
+## 📁 Kiến Trúc Mã Nguồn
 
 ```text
-antigravity-studio/
-├── assets/
-│   ├── videos/          # 29 video live HD đã tối ưu dung lượng siêu gọn
-│   ├── thumbs/          # 29 ảnh poster JPEG siêu nhẹ (~630 KB) cho Gallery 0-video-idle
-│   ├── wallpapers/      # 8 hình nền tĩnh 2K sắc nét
-│   ├── mascots/         # 13 linh vật tương tác trong suốt
-│   └── brand/           # Logo & biểu tượng ứng dụng
-├── electron/
-│   ├── main.cjs         # Electron main process, Tray, Window reveal, Startup, IPC
-│   ├── cdp-bridge.cjs   # Cầu nối CDP live (fs.watch + Browser Target Push)
-│   ├── injector-payload.cjs # Engine Liquid Glass, 1-Video Pass-Through, Blob GC & Mascot Physics
-│   ├── store.cjs        # Lưu cấu hình an toàn (.tmp + .bak), Combos, History, Trash
-│   ├── media-server.cjs # HTTP Media Server cục bộ (127.0.0.1)
-│   ├── online-downloader.cjs # Bộ tải video online (YouTube/Direct URL)
-│   └── preload.cjs      # ContextBridge IPC
-├── src/
-│   ├── App.jsx          # Bố cục chính Clear Liquid Glass Studio
-│   ├── components/      # TopBar, Sidebar, ThemeGallery, SideSplitPreview, RightControls...
-│   └── styles/app.css   # Hệ thống giao diện quang học Clear Liquid Glass
-├── docs/screenshots/    # Ảnh minh họa giao diện thực tế
-├── scripts/afterPack.cjs # Tối ưu gói build (cắt 53 locale thừa, giảm ~40 MB)
-└── package.json
+├── src/                        # Giao diện React + Vite + cầu nối Tauri v2 (src/api/tauriBridge.js)
+├── src-tauri/
+│   ├── src/
+│   │   ├── main.rs             # Điểm vào Windows GUI subsystem
+│   │   ├── lib.rs              # Khởi tạo Tauri v2, System Tray siêu nhẹ, Single-Instance
+│   │   ├── media_server.rs     # Axum 0.8 HTTP server hỗ trợ Byte-Range 206 + /__studio/*
+│   │   ├── cdp_bridge.rs       # Tokio WebSocket CDP bridge + notify watcher + self-healing
+│   │   ├── store.rs            # Quản lý 29 video, 8 ảnh 2K, 13 linh vật, combo, backup JSON
+│   │   ├── ide_sync.rs         # Đồng bộ argv.json, settings.json, Windows Registry (winreg)
+│   │   ├── downloader.rs       # Tải trực tiếp HTTP streaming (reqwest) & yt-dlp / ffmpeg
+│   │   └── commands.rs         # 37 lệnh Tauri IPC + hộp thoại chọn file/thư mục native
+│   └── resources/              # Lõi injector-runtime.js & catalog nhúng lúc biên dịch
+└── assets/                     # 29 video live HD, 29 poster JPEG, 8 ảnh 2K, 13 linh vật
 ```
 
----
+## 📄 Giấy Phép
 
-## 🔒 An Toàn & Hoàn Tác 1 Chạm
-
-- **Không bao giờ sửa đổi file nhị phân (`.exe` / `app.asar`) của Antigravity IDE.**
-- Toàn bộ hiệu ứng hoạt động động qua Chrome DevTools Protocol (CDP) nội bộ trên `127.0.0.1`.
-- Nhấn nút **Bản gốc** bất cứ lúc nào để gỡ sạch 100% tùy biến và trả IDE về mặc định.
-
----
-
-## 👤 Tác Giả & Giấy Phép
-
-- Phát triển bởi **[mqinpuienhzg](https://github.com/mqinpuienhzg)**
-- Giấy phép mã nguồn mở: [MIT License](LICENSE)
-
-Nếu thấy công cụ hữu ích, đừng quên tặng một **⭐ Star** cho dự án nhé!
+Phát hành theo giấy phép **MIT License** — xem chi tiết tại [LICENSE](LICENSE). Phát triển bởi **[mqinpuienhzg](https://github.com/mqinpuienhzg)**.

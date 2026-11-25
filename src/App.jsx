@@ -19,6 +19,7 @@ import { hexToRgbStr } from './data/presets';
 export default function App() {
   const [studio, setStudio] = useState(null);
   const [cdpStatus, setCdpStatus] = useState({ connected: false, chatCount: 0, ideCount: 0, webviewCount: 0 });
+  const [desktopStatus, setDesktopStatus] = useState({ supported: true, active: false, paused: false, autoPaused: false, manualPaused: false });
   const [activeTab, setActiveTab] = useState('themes');
   const [previewMode, setPreviewMode] = useState('chat');
   const [rightPreviewOpen, setRightPreviewOpen] = useState(true);
@@ -71,8 +72,10 @@ export default function App() {
     window.studioAPI.getState().then((res) => {
       setStudio(res);
       if (res.cdpStatus) setCdpStatus(res.cdpStatus);
+      if (res.desktopStatus) setDesktopStatus(res.desktopStatus);
     });
     const offCdp = window.studioAPI.onCdpStatus((status) => setCdpStatus(status));
+    const offDesktop = window.studioAPI.onDesktopStatus?.((status) => setDesktopStatus(status));
     const offState = window.studioAPI.onStateUpdated((next) => setStudio((prev) => ({ ...prev, ...next })));
     const offWebProg = window.studioAPI.onWebDownloadProgress?.((prog) => {
       setWebDownloadProgress(prog);
@@ -92,6 +95,7 @@ export default function App() {
     });
     return () => {
       offCdp?.();
+      offDesktop?.();
       offState?.();
       offWebProg?.();
       offWebDone?.();
@@ -162,6 +166,57 @@ export default function App() {
     },
     [studio, handlePatchConfig, showDemoToast, triggerAccentPrompt]
   );
+
+  const handleSetDesktop = useCallback(
+    async (theme) => {
+      const curCfg = studio?.config || {};
+      const curDesktopId = curCfg.desktopSyncWithIde
+        ? (curCfg.chatThemeId || curCfg.ideThemeId || curCfg.desktopThemeId)
+        : curCfg.desktopThemeId;
+      if (curCfg.desktopWallpaperEnabled && curDesktopId === theme.id) {
+        const res = await window.studioAPI?.toggleDesktopWallpaper?.(false);
+        if (res?.state) setStudio((prev) => ({ ...prev, ...res.state }));
+        if (res?.status) setDesktopStatus(res.status);
+        showGlobalToast('Đã tắt hình nền động Windows Desktop');
+        return;
+      }
+      const res = await window.studioAPI?.setDesktopWallpaper?.(theme.id);
+      if (res?.state) setStudio((prev) => ({ ...prev, ...res.state }));
+      if (res?.status) setDesktopStatus(res.status);
+      if (res?.ok) {
+        showGlobalToast(`Đã đặt "${theme.name}" làm hình nền động Windows Desktop`);
+      } else {
+        showGlobalToast(`Lỗi đặt hình nền Desktop: ${res?.error || 'Không thể gắn WorkerW'}`);
+      }
+    },
+    [studio, showGlobalToast]
+  );
+
+  const handleToggleDesktop = useCallback(
+    async (nextEnable) => {
+      const res = await window.studioAPI?.toggleDesktopWallpaper?.(nextEnable);
+      if (res?.state) setStudio((prev) => ({ ...prev, ...res.state }));
+      if (res?.status) setDesktopStatus(res.status);
+      if (res?.ok) {
+        showGlobalToast(
+          res.status?.active
+            ? `Đã bật hình nền động Windows Desktop (${res.status.themeName || 'Live'})`
+            : 'Đã tắt hình nền động Desktop và khôi phục nền gốc Windows'
+        );
+      } else if (res?.error) {
+        showGlobalToast(`Lỗi hình nền Desktop: ${res.error}`);
+      }
+    },
+    [showGlobalToast]
+  );
+
+  const handleToggleDesktopPause = useCallback(async () => {
+    const res = await window.studioAPI?.toggleDesktopPause?.();
+    if (res?.status) {
+      setDesktopStatus(res.status);
+      showGlobalToast(res.status.manualPaused ? 'Đã tạm dừng video nền Desktop' : 'Đã tiếp tục chạy video nền Desktop');
+    }
+  }, [showGlobalToast]);
 
   const handleSelectMascot = useCallback(
     (m) => {
@@ -385,6 +440,13 @@ export default function App() {
     () => themes.find((t) => t.id === config.ideThemeId) || themes[0] || null,
     [themes, config.ideThemeId]
   );
+  const desktopThemeId = config.desktopSyncWithIde
+    ? (config.chatThemeId || config.ideThemeId || config.desktopThemeId)
+    : (config.desktopThemeId || config.chatThemeId || config.ideThemeId);
+  const desktopTheme = useMemo(
+    () => themes.find((t) => t.id === desktopThemeId) || themes[0] || null,
+    [themes, desktopThemeId]
+  );
   const activeAmbientTheme =
     hoverTheme ||
     (config.unifiedFullWindow !== false ? chatTheme || ideTheme : previewMode === 'ide' ? ideTheme : chatTheme);
@@ -420,7 +482,7 @@ export default function App() {
   if (!studio) {
     return (
       <div className="studio-shell" style={{ alignItems: 'center', justifyContent: 'center' }}>
-        <div style={{ color: '#a1abbe', fontWeight: 550, fontSize: 13 }}>Đang khởi chạy Antigravity Studio Pro...</div>
+        <div style={{ color: '#a1abbe', fontWeight: 550, fontSize: 13 }}>Đang khởi chạy Antigravity Studio Rust...</div>
       </div>
     );
   }
@@ -476,6 +538,7 @@ export default function App() {
             activeTab={activeTab}
             onSelectTab={setActiveTab}
             cdpStatus={cdpStatus}
+            desktopStatus={desktopStatus}
             mediaPort={studio.mediaServerPort}
             appLogoUrl={studio.appLogoUrl}
             config={config}
@@ -489,6 +552,9 @@ export default function App() {
           <div className="studio-main-column">
             <TopBar
               cdpStatus={cdpStatus}
+              desktopStatus={desktopStatus}
+              desktopEnabled={Boolean(config.desktopWallpaperEnabled)}
+              desktopTheme={desktopTheme}
               enabled={config.enabled}
               unifiedFullWindow={config.unifiedFullWindow !== false}
               rightPreviewOpen={rightPreviewOpen}
@@ -496,6 +562,7 @@ export default function App() {
               ideTheme={ideTheme}
               busyAction={busyAction}
               onToggleUnified={handleToggleUnified}
+              onToggleDesktop={() => handleToggleDesktop(!config.desktopWallpaperEnabled)}
               onToggleRightPreview={() => setRightPreviewOpen((v) => !v)}
               onImportFiles={handleImportFiles}
               onCapture={handleCapture}
@@ -526,12 +593,14 @@ export default function App() {
                   <ThemeGallery
                     themes={themes}
                     config={config}
+                    desktopThemeId={desktopThemeId}
                     extraThemesDir={studio.extraThemesDir}
                     comboCount={savedCombos.length}
                     initialFilter={galleryInitialFilter}
                     onSetUnified={handleSetUnified}
                     onSetChat={handleSetChat}
                     onSetIde={handleSetIde}
+                    onSetDesktop={handleSetDesktop}
                     onHoverTheme={setHoverTheme}
                     onTogglePlaylist={handleTogglePlaylist}
                     onImportFiles={handleImportFiles}
@@ -679,7 +748,15 @@ export default function App() {
                   config={config}
                   chatTheme={chatTheme}
                   ideTheme={ideTheme}
+                  desktopTheme={desktopTheme}
+                  desktopStatus={desktopStatus}
                   onPatchConfig={handlePatchConfig}
+                  onToggleDesktop={handleToggleDesktop}
+                  onSetDesktopFromIde={() => {
+                    const cur = chatTheme || ideTheme;
+                    if (cur) handleSetDesktop(cur);
+                  }}
+                  onToggleDesktopPause={handleToggleDesktopPause}
                   onNextPlaylist={async () => {
                     const next = await window.studioAPI.nextPlaylist();
                     if (next) setStudio((prev) => ({ ...prev, ...next }));

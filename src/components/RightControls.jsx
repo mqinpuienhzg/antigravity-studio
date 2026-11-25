@@ -7,7 +7,10 @@ import {
   Eye,
   Film,
   ListVideo,
+  Monitor,
   Palette,
+  Pause,
+  Play,
   RotateCcw,
   SkipForward,
   Sliders,
@@ -56,7 +59,12 @@ export default function RightControls({
   config,
   chatTheme,
   ideTheme,
+  desktopTheme,
+  desktopStatus,
   onPatchConfig,
+  onToggleDesktop,
+  onSetDesktopFromIde,
+  onToggleDesktopPause,
   onNextPlaylist,
   onQuickRandomize,
   onResetQuick,
@@ -484,6 +492,183 @@ export default function RightControls({
       {/* TAB 3: VIDEO ENGINE & DISPLAY MODE */}
       {tab === 'video' && (
         <>
+          <div className="panel-section">
+            <div className="panel-heading">
+              <span style={{ display: 'inline-flex', alignItems: 'center', gap: 5 }}>
+                <Monitor size={11} color="#34d399" />
+                HÌNH NỀN ĐỘNG WINDOWS DESKTOP
+              </span>
+              <span
+                className={`desktop-status-pill ${
+                  config.desktopWallpaperEnabled
+                    ? desktopStatus?.paused
+                      ? 'paused'
+                      : 'on'
+                    : ''
+                }`}
+              >
+                {config.desktopWallpaperEnabled
+                  ? desktopStatus?.manualPaused
+                    ? 'Tạm dừng'
+                    : desktopStatus?.autoPaused
+                    ? 'Nghỉ GPU'
+                    : 'Đang chạy'
+                  : 'Đang tắt'}
+              </span>
+            </div>
+
+            <div className="toggle-row">
+              <div style={{ display: 'flex', flexDirection: 'column', gap: 1 }}>
+                <span style={{ fontSize: 11.5, fontWeight: 600, color: 'var(--ink-primary)' }}>
+                  Bật hình nền động Desktop
+                </span>
+                <span style={{ fontSize: 10, color: 'var(--ink-muted)' }}>
+                  {desktopTheme?.name || 'Chọn bất kỳ theme nào'}
+                </span>
+              </div>
+              <button
+                type="button"
+                className={`toggle-switch ${config.desktopWallpaperEnabled ? 'on' : ''}`}
+                onClick={() => onToggleDesktop?.(!config.desktopWallpaperEnabled)}
+              />
+            </div>
+
+            <div style={{ display: 'flex', gap: 6 }}>
+              <button
+                type="button"
+                className="btn btn-sm"
+                style={{ flex: 1 }}
+                onClick={onSetDesktopFromIde}
+                title="Đặt ngay nền hiện tại của IDE làm hình nền động Windows Desktop"
+              >
+                <Monitor size={11} />
+                <span>Lấy nền IDE</span>
+              </button>
+              {config.desktopWallpaperEnabled && (
+                <button
+                  type="button"
+                  className="btn btn-sm"
+                  onClick={onToggleDesktopPause}
+                  title={desktopStatus?.manualPaused ? 'Tiếp tục phát video Desktop' : 'Tạm dừng video Desktop'}
+                >
+                  {desktopStatus?.manualPaused ? <Play size={11} /> : <Pause size={11} />}
+                  <span>{desktopStatus?.manualPaused ? 'Chạy tiếp' : 'Tạm dừng'}</span>
+                </button>
+              )}
+            </div>
+
+            <div className="toggle-row" style={{ paddingTop: 6, borderTop: '1px solid var(--hairline)' }}>
+              <div style={{ display: 'flex', flexDirection: 'column', gap: 1 }}>
+                <span style={{ fontSize: 11, fontWeight: 550, color: 'var(--ink-primary)' }}>
+                  Tự đồng bộ theo nền IDE
+                </span>
+                <span style={{ fontSize: 10, color: 'var(--ink-muted)' }}>
+                  Đổi nền IDE sẽ tự đổi nền Desktop
+                </span>
+              </div>
+              <button
+                type="button"
+                className={`toggle-switch ${config.desktopSyncWithIde ? 'on' : ''}`}
+                onClick={() => onPatchConfig({ desktopSyncWithIde: !config.desktopSyncWithIde }, true)}
+              />
+            </div>
+
+            <div className="slider-row">
+              <div className="slider-label-line"><span>Khung hình Desktop</span></div>
+              <div className="seg-control">
+                <button
+                  type="button"
+                  className={`seg-btn ${config.desktopObjectFit !== 'contain' ? 'active' : ''}`}
+                  onClick={() => onPatchConfig({ desktopObjectFit: 'cover' }, true)}
+                >
+                  Lấp đầy (Cover)
+                </button>
+                <button
+                  type="button"
+                  className={`seg-btn ${config.desktopObjectFit === 'contain' ? 'active' : ''}`}
+                  onClick={() => onPatchConfig({ desktopObjectFit: 'contain' }, true)}
+                >
+                  Vừa khung
+                </button>
+              </div>
+            </div>
+
+            <div className="slider-row">
+              <div className="slider-label-line"><span>Màn hình áp dụng</span></div>
+              <div className="seg-control">
+                <button
+                  type="button"
+                  className={`seg-btn ${config.desktopDisplayMode !== 'all' ? 'active' : ''}`}
+                  onClick={() => onPatchConfig({ desktopDisplayMode: 'primary' }, true)}
+                >
+                  Màn hình chính
+                </button>
+                <button
+                  type="button"
+                  className={`seg-btn ${config.desktopDisplayMode === 'all' ? 'active' : ''}`}
+                  onClick={() => onPatchConfig({ desktopDisplayMode: 'all' }, true)}
+                >
+                  Tất cả màn hình
+                </button>
+              </div>
+            </div>
+
+            <SliderControl
+              label="Độ tối nền Desktop"
+              value={config.desktopDimming ?? 0}
+              min={0}
+              max={80}
+              unit="%"
+              color="#34d399"
+              onChange={(v) => onPatchConfig({ desktopDimming: v })}
+            />
+            <SliderControl
+              label="Độ mờ nền Desktop"
+              value={config.desktopBlur ?? 0}
+              min={0}
+              max={16}
+              unit="px"
+              color="#34d399"
+              onChange={(v) => onPatchConfig({ desktopBlur: v })}
+            />
+            <SliderControl
+              label="Tốc độ video Desktop"
+              value={config.desktopSpeed ?? 1}
+              min={0.25}
+              max={2}
+              step={0.25}
+              unit="x"
+              color="#34d399"
+              onChange={(v) => onPatchConfig({ desktopSpeed: v })}
+            />
+            <SliderControl
+              label="Âm lượng Desktop"
+              value={config.desktopVolume ?? 0}
+              min={0}
+              max={100}
+              unit="%"
+              color="#34d399"
+              onChange={(v) => onPatchConfig({ desktopVolume: v })}
+            />
+
+            <div className="toggle-row" style={{ paddingTop: 6, borderTop: '1px solid var(--hairline)' }}>
+              <div style={{ display: 'flex', flexDirection: 'column', gap: 1 }}>
+                <span style={{ fontSize: 11, fontWeight: 600, color: 'var(--ink-primary)', display: 'inline-flex', alignItems: 'center', gap: 5 }}>
+                  <Cpu size={12} color="#34d399" />
+                  Tự nghỉ GPU khi chơi game
+                </span>
+                <span style={{ fontSize: 10, color: 'var(--ink-muted)' }}>
+                  Tạm dừng video khi cửa sổ phóng to che Desktop
+                </span>
+              </div>
+              <button
+                type="button"
+                className={`toggle-switch ${config.desktopSmartPause !== false ? 'on' : ''}`}
+                onClick={() => onPatchConfig({ desktopSmartPause: !(config.desktopSmartPause !== false) }, true)}
+              />
+            </div>
+          </div>
+
           <div className="panel-section">
             <div className="panel-heading"><span>CHẾ ĐỘ PHỦ MÀN HÌNH</span></div>
             <div className="seg-control">

@@ -1,26 +1,8 @@
-# Dependencies & Build Outputs
 node_modules/
 dist-ui/
 release/
-out/
-
-# Third-party local binaries (not committed to GitHub; downloaded/bundled locally for portable builds)
+src-tauri/target/
 bin/*.exe
-
-# Logs & Temp Files
 *.log
-npm-debug.log*
-yarn-debug.log*
 .DS_Store
 Thumbs.db
-*.tmp
-*.bak
-tmp/
-tmp_*/
-.cache/
-
-# Stray root captures
-*.png
-!assets/**/*.png
-!build/**/*.png
-!docs/**/*.png

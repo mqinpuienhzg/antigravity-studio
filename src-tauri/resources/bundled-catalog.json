@@ -1,0 +1,525 @@
+{
+  "videos": [
+    {
+      "id": "vid-abi-toads-lily",
+      "file": "vid_abi_toads_lily.mp4",
+      "name": "Abi Toads on a Lily Pad",
+      "concept": "4K Live • Hồ sen xanh mướt & chú cóc thư giãn cực chill",
+      "collection": "chill",
+      "resBadge": "4K UHD",
+      "fpsBadge": "60 FPS",
+      "accent": "#34d399",
+      "secondary": "#38bdf8",
+      "overlayRgb": "6, 18, 16"
+    },
+    {
+      "id": "vid-butterfly-starlight",
+      "file": "vid_butterfly_starlight.mp4",
+      "name": "Butterfly Girl Starlight Gaze",
+      "concept": "4K Live • Thiếu nữ ánh sao & cánh bướm xanh huyền ảo",
+      "collection": "anime",
+      "resBadge": "4K UHD",
+      "fpsBadge": "60 FPS",
+      "accent": "#38bdf8",
+      "secondary": "#c084fc",
+      "overlayRgb": "10, 12, 24"
+    },
+    {
+      "id": "vid-crystal-eyes",
+      "file": "vid_crystal_eyes.mp4",
+      "name": "Crystal Galaxy Eyes",
+      "concept": "4K Live • Cận cảnh đôi mắt pha lê phản chiếu dải ngân hà",
+      "collection": "anime",
+      "resBadge": "4K UHD",
+      "fpsBadge": "60 FPS",
+      "accent": "#f472b6",
+      "secondary": "#38bdf8",
+      "overlayRgb": "14, 10, 24"
+    },
+    {
+      "id": "vid-yt-acheron-void",
+      "file": "yt_acheron_void_hd.mp4",
+      "name": "Acheron Cyber Noir",
+      "concept": "FHD Live • Honkai Star Rail phong cách Cyber tím huyền bí",
+      "collection": "cyber",
+      "resBadge": "FHD",
+      "fpsBadge": "60 FPS",
+      "accent": "#a855f7",
+      "secondary": "#f43f5e",
+      "overlayRgb": "10, 6, 20"
+    },
+    {
+      "id": "vid-blue-kimono-girl",
+      "file": "vid_blue_kimono_girl.mp4",
+      "name": "Cô Gái Thanh Lịch Trong Kimono",
+      "concept": "4K Live • Cổ phong Nhật Bản thanh lịch & dịu mắt",
+      "collection": "chill",
+      "resBadge": "4K UHD",
+      "fpsBadge": "60 FPS",
+      "accent": "#60a5fa",
+      "secondary": "#c084fc",
+      "overlayRgb": "8, 12, 24"
+    },
+    {
+      "id": "vid-yt-kimono-sakura",
+      "file": "yt_kimono_sakura_hd.mp4",
+      "name": "Thiếu Nữ Kimono Hoa Anh Đào",
+      "concept": "FHD Live • Đền thờ hoa anh đào & chú mèo tam thể rơi cánh hoa",
+      "collection": "chill",
+      "resBadge": "FHD",
+      "fpsBadge": "60 FPS",
+      "accent": "#f472b6",
+      "secondary": "#fbbf24",
+      "overlayRgb": "14, 9, 20"
+    },
+    {
+      "id": "vid-yt-sword-girl",
+      "file": "yt_sword_girl_2k.mp4",
+      "name": "Nữ Kiếm Sĩ Mực Đêm",
+      "concept": "2K Live • Thủy mặc cổ trang & nữ kiếm sĩ khí chất",
+      "collection": "anime",
+      "resBadge": "2K QHD",
+      "fpsBadge": "60 FPS",
+      "accent": "#06b6d4",
+      "secondary": "#a855f7",
+      "overlayRgb": "7, 10, 22"
+    },
+    {
+      "id": "vid-yt-samurai-sunset",
+      "file": "yt_samurai_sunset_2k.mp4",
+      "name": "Hoàng Hôn Trên Đồng Cỏ",
+      "concept": "2K Live • Kiếm khách trong ánh chiều tà điện ảnh",
+      "collection": "fantasy",
+      "resBadge": "2K QHD",
+      "fpsBadge": "60 FPS",
+      "accent": "#f59e0b",
+      "secondary": "#f43f5e",
+      "overlayRgb": "18, 10, 14"
+    },
+    {
+      "id": "vid-siesta-room",
+      "file": "vid_siesta_room.mp4",
+      "name": "Siesta Nghỉ Ngơi Trong Phòng",
+      "concept": "FHD Live • Tantei wa Mou Shindeiru tông ấm sang trọng",
+      "collection": "anime",
+      "resBadge": "FHD",
+      "fpsBadge": "60 FPS",
+      "accent": "#fb7185",
+      "secondary": "#c084fc",
+      "overlayRgb": "16, 8, 18"
+    },
+    {
+      "id": "vid-ocean-piano-wlop",
+      "file": "vid_ocean_piano_wlop.mp4",
+      "name": "The Ocean Piano of WLOP",
+      "concept": "2K Live • Biển sao đàn piano kiệt tác nghệ thuật WLOP",
+      "collection": "fantasy",
+      "resBadge": "2K QHD",
+      "fpsBadge": "60 FPS",
+      "accent": "#38bdf8",
+      "secondary": "#818cf8",
+      "overlayRgb": "6, 12, 26"
+    },
+    {
+      "id": "vid-meadow-clouds",
+      "file": "vid_meadow_clouds.mp4",
+      "name": "Meadow Mountain Clouds",
+      "concept": "4K Live • Thảo nguyên xanh & mây trời trong vắt thư giãn",
+      "collection": "chill",
+      "resBadge": "4K UHD",
+      "fpsBadge": "60 FPS",
+      "accent": "#34d399",
+      "secondary": "#60a5fa",
+      "overlayRgb": "7, 14, 22"
+    },
+    {
+      "id": "vid-nikke-sakura-summer",
+      "file": "vid_nikke_sakura_summer.mp4",
+      "name": "NIKKE Sakura Bloom in Summer",
+      "concept": "2K Live • Sakura mùa hạ rực rỡ từ Goddess of Victory: NIKKE",
+      "collection": "anime",
+      "resBadge": "2K QHD",
+      "fpsBadge": "60 FPS",
+      "accent": "#f43f5e",
+      "secondary": "#fbbf24",
+      "overlayRgb": "18, 8, 16"
+    },
+    {
+      "id": "vid-yt-raiden-moon",
+      "file": "yt_raiden_moon_2k.mp4",
+      "name": "Nguyệt Kiếm Raiden",
+      "concept": "2K Live • Ánh trăng tím & kiếm quang huyền ảo",
+      "collection": "anime",
+      "resBadge": "2K QHD",
+      "fpsBadge": "60 FPS",
+      "accent": "#c084fc",
+      "secondary": "#f472b6",
+      "overlayRgb": "12, 7, 24"
+    },
+    {
+      "id": "vid-yt-gojo-void",
+      "file": "yt_gojo_void_hd.mp4",
+      "name": "Gojo Satoru Hư Thức Tử",
+      "concept": "FHD Live • Jujutsu Kaisen hào quang tím Vô Hạ Hạn cực ngầu",
+      "collection": "anime",
+      "resBadge": "FHD",
+      "fpsBadge": "60 FPS",
+      "accent": "#a855f7",
+      "secondary": "#60a5fa",
+      "overlayRgb": "11, 7, 24"
+    },
+    {
+      "id": "vid-yt-raiden-lightning",
+      "file": "yt_raiden_lightning_2k.mp4",
+      "name": "Raiden Shogun Lôi Thần",
+      "concept": "2K Live • Nữ kiếm sĩ lôi điện tím sắc nét",
+      "collection": "anime",
+      "resBadge": "2K QHD",
+      "fpsBadge": "60 FPS",
+      "accent": "#a855f7",
+      "secondary": "#38bdf8",
+      "overlayRgb": "10, 7, 24"
+    },
+    {
+      "id": "vid-yt-azure-blade",
+      "file": "yt_azure_blade_2k.mp4",
+      "name": "Azure Blade Lam Quang",
+      "concept": "2K Live • Nữ chiến binh thanh kiếm xanh rực sáng",
+      "collection": "anime",
+      "resBadge": "2K QHD",
+      "fpsBadge": "60 FPS",
+      "accent": "#38bdf8",
+      "secondary": "#818cf8",
+      "overlayRgb": "6, 12, 26"
+    },
+    {
+      "id": "vid-yt-butterfly-eyes",
+      "file": "yt_butterfly_eyes_hd.mp4",
+      "name": "Ánh Mắt Tinh Vân Pha Lê",
+      "concept": "FHD Live • Cận cảnh đôi mắt ngân hà pha lê cực hút hồn",
+      "collection": "anime",
+      "resBadge": "FHD",
+      "fpsBadge": "60 FPS",
+      "accent": "#e879f9",
+      "secondary": "#38bdf8",
+      "overlayRgb": "12, 8, 22"
+    },
+    {
+      "id": "vid-yt-purple-butterfly",
+      "file": "yt_purple_butterfly_hd.mp4",
+      "name": "Bướm Ánh Sao Mắt Tím",
+      "concept": "FHD Live • Thiếu nữ anime cùng bướm phát sáng huyền ảo",
+      "collection": "anime",
+      "resBadge": "FHD",
+      "fpsBadge": "60 FPS",
+      "accent": "#c084fc",
+      "secondary": "#60a5fa",
+      "overlayRgb": "11, 8, 24"
+    },
+    {
+      "id": "vid-yt-frieren-stars",
+      "file": "yt_frieren_stars_hd.mp4",
+      "name": "Frieren Đêm Sao Băng",
+      "concept": "FHD Live • Bầu trời sao đêm cực chill & dịu mắt từ Frieren",
+      "collection": "chill",
+      "resBadge": "FHD",
+      "fpsBadge": "60 FPS",
+      "accent": "#60a5fa",
+      "secondary": "#c084fc",
+      "overlayRgb": "7, 11, 24"
+    },
+    {
+      "id": "vid-yt-shinkai-rain",
+      "file": "yt_shinkai_rain_hd.mp4",
+      "name": "Mưa Đêm Tokyo Makoto Shinkai",
+      "concept": "FHD Live • Phong cảnh mưa đêm Nhật Bản thơ mộng",
+      "collection": "chill",
+      "resBadge": "FHD",
+      "fpsBadge": "60 FPS",
+      "accent": "#38bdf8",
+      "secondary": "#818cf8",
+      "overlayRgb": "6, 12, 24"
+    },
+    {
+      "id": "vid-yt-solo-monarch",
+      "file": "yt_solo_monarch_hd.mp4",
+      "name": "Sung Jin-Woo Shadow Monarch",
+      "concept": "FHD Live • Solo Leveling khí chất Hoàng Đế Bóng Tối",
+      "collection": "anime",
+      "resBadge": "FHD",
+      "fpsBadge": "60 FPS",
+      "accent": "#6366f1",
+      "secondary": "#38bdf8",
+      "overlayRgb": "7, 8, 22"
+    },
+    {
+      "id": "vid-yt-wlop-fireflies",
+      "file": "yt_wlop_fireflies_2k.mp4",
+      "name": "Công Chúa Đom Đóm WLOP",
+      "concept": "2K Live • Nghệ thuật WLOP & hiệu ứng đom đóm",
+      "collection": "fantasy",
+      "resBadge": "2K QHD",
+      "fpsBadge": "60 FPS",
+      "accent": "#34d399",
+      "secondary": "#fbbf24",
+      "overlayRgb": "6, 14, 18"
+    },
+    {
+      "id": "vid-yt-rengoku-fire",
+      "file": "yt_rengoku_fire_2k.mp4",
+      "name": "Rengoku Viêm Trụ Hỏa Long",
+      "concept": "2K Live • Demon Slayer ngọn lửa rực cháy điện ảnh",
+      "collection": "anime",
+      "resBadge": "2K QHD",
+      "fpsBadge": "60 FPS",
+      "accent": "#f97316",
+      "secondary": "#fbbf24",
+      "overlayRgb": "20, 9, 8"
+    },
+    {
+      "id": "vid-yt-lucy-neon",
+      "file": "yt_lucy_neon_2k.mp4",
+      "name": "Lucy Cyberpunk Neon",
+      "concept": "2K Live • Cyberpunk Edgerunners mưa neon",
+      "collection": "cyber",
+      "resBadge": "2K QHD",
+      "fpsBadge": "60 FPS",
+      "accent": "#ec4899",
+      "secondary": "#38bdf8",
+      "overlayRgb": "8, 9, 24"
+    },
+    {
+      "id": "vid-yt-cyber-moto",
+      "file": "yt_cyber_moto_2k.mp4",
+      "name": "Nữ Chiến Binh Moto Neon",
+      "concept": "2K Live • Moto phát sáng trên quỹ đạo Cyberpunk",
+      "collection": "cyber",
+      "resBadge": "2K QHD",
+      "fpsBadge": "60 FPS",
+      "accent": "#e879f9",
+      "secondary": "#38bdf8",
+      "overlayRgb": "7, 10, 24"
+    },
+    {
+      "id": "vid-yt-interstellar-hole",
+      "file": "yt_interstellar_hole_hd.mp4",
+      "name": "Hố Đen Thiên Hà Gargantua",
+      "concept": "FHD Live • Vũ trụ Interstellar đĩa bồi tụ ánh kim",
+      "collection": "cyber",
+      "resBadge": "FHD",
+      "fpsBadge": "60 FPS",
+      "accent": "#f59e0b",
+      "secondary": "#38bdf8",
+      "overlayRgb": "10, 9, 14"
+    },
+    {
+      "id": "vid-yt-sakura-winter",
+      "file": "yt_sakura_winter_2k.mp4",
+      "name": "Phố Hoa Anh Đào Tuyết Rơi",
+      "concept": "2K Live • Đường hoa anh đào & tuyết rơi lãng mạn",
+      "collection": "chill",
+      "resBadge": "2K QHD",
+      "fpsBadge": "60 FPS",
+      "accent": "#f472b6",
+      "secondary": "#c084fc",
+      "overlayRgb": "14, 8, 24"
+    },
+    {
+      "id": "vid-cyber-neon-muse",
+      "file": "cyber_neon_muse_live.mp4",
+      "name": "Cyberpunk Neon Muse",
+      "concept": "FHD Live • Ánh đèn neon tím & xanh cyan",
+      "collection": "cyber",
+      "resBadge": "FHD",
+      "fpsBadge": "60 FPS",
+      "accent": "#a855f7",
+      "secondary": "#38bdf8",
+      "overlayRgb": "7, 9, 22"
+    },
+    {
+      "id": "vid-sakura-shrine",
+      "file": "sakura_shrine_live.mp4",
+      "name": "Đêm Hoa Anh Đào Trăng Rằm",
+      "concept": "FHD Live • Cánh hoa anh đào rơi trên hồ Torii",
+      "collection": "chill",
+      "accent": "#f472b6",
+      "secondary": "#c084fc",
+      "overlayRgb": "14, 8, 24"
+    }
+  ],
+  "wallpapers": [
+    {
+      "id": "art-cyber-neon-muse",
+      "file": "cyber_neon_muse.webp",
+      "name": "Cyberpunk Neon Muse",
+      "concept": "Hình nền Anime Cyberpunk 2K • Sắc tím & xanh điện quang",
+      "collection": "cyber",
+      "accent": "#a855f7",
+      "secondary": "#06b6d4",
+      "overlayRgb": "7, 8, 22"
+    },
+    {
+      "id": "art-emerald-spirit",
+      "file": "emerald_spirit_sanctuary.webp",
+      "name": "Đền Thần Rừng Ngọc",
+      "concept": "Hình nền Fantasy 2K • Rừng linh khí dịu mắt khi code lâu",
+      "collection": "fantasy",
+      "accent": "#10b981",
+      "secondary": "#22d3ee",
+      "overlayRgb": "4, 16, 18"
+    },
+    {
+      "id": "art-golden-samurai",
+      "file": "golden_samurai_sunset.webp",
+      "name": "Kiếm Khách Trên Đỉnh Mây",
+      "concept": "Hình nền Kiếm Hiệp Hoàng Hôn 2K • Tông cam vàng ấm áp",
+      "collection": "fantasy",
+      "accent": "#f59e0b",
+      "secondary": "#fb7185",
+      "overlayRgb": "18, 10, 14"
+    },
+    {
+      "id": "art-sakura-shrine",
+      "file": "sakura_shrine_night.webp",
+      "name": "Cổng Torii Anh Đào Đêm",
+      "concept": "Hình nền Nhật Bản Đêm Trăng 2K • Hồng phấn & tím sâu",
+      "collection": "chill",
+      "accent": "#f472b6",
+      "secondary": "#c084fc",
+      "overlayRgb": "14, 7, 24"
+    },
+    {
+      "id": "art-moonlight-valkyrie",
+      "file": "moonlight_valkyrie.webp",
+      "name": "Pháp Sư Trăng Khuyết",
+      "concept": "Hình nền Dark Fantasy WLOP Style • Ánh trăng xanh lam",
+      "collection": "fantasy",
+      "accent": "#38bdf8",
+      "secondary": "#a855f7",
+      "overlayRgb": "6, 10, 26"
+    },
+    {
+      "id": "art-tokyo-cyber",
+      "file": "tokyo_midnight_cyber.webp",
+      "name": "Phố Đêm Tokyo Neon",
+      "concept": "Hình nền Cyberpunk 2K • Mưa đêm phản chiếu neon sắc nét",
+      "collection": "cyber",
+      "accent": "#06b6d4",
+      "secondary": "#ec4899",
+      "overlayRgb": "6, 9, 24"
+    },
+    {
+      "id": "art-celestial-citadel",
+      "file": "starlit_celestial_citadel.webp",
+      "name": "Thiên Cung Ngân Hà",
+      "concept": "Hình nền Vũ Trụ Hoàng Kim 2K • Thành cổ giữa tinh vân",
+      "collection": "fantasy",
+      "accent": "#fbbf24",
+      "secondary": "#818cf8",
+      "overlayRgb": "8, 10, 24"
+    },
+    {
+      "id": "art-pastel-daybreak",
+      "file": "pastel_daybreak_clouds.webp",
+      "name": "Bình Minh Mây Pastel",
+      "concept": "Hình nền Makoto Shinkai Style • Tươi sáng & trong trẻo",
+      "collection": "chill",
+      "accent": "#38bdf8",
+      "secondary": "#f472b6",
+      "overlayRgb": "12, 18, 34"
+    }
+  ],
+  "mascots": [
+    {
+      "id": "bundled-chibi-kitsune",
+      "file": "chibi_cyber_kitsune.png",
+      "name": "Chibi Hồ Ly Cyber",
+      "category": "cute",
+      "tag": "Cute"
+    },
+    {
+      "id": "bundled-chibi-astro-cat",
+      "file": "chibi_astro_cat.png",
+      "name": "Chibi Mèo Phi Hành Gia",
+      "category": "cute",
+      "tag": "Cute"
+    },
+    {
+      "id": "bundled-cute-mochi-bunny",
+      "file": "mascot_cute_mochi_bunny.png",
+      "name": "Thỏ Hồng Mochi Ôm Sao",
+      "category": "cute",
+      "tag": "Cute"
+    },
+    {
+      "id": "bundled-cute-baby-dragon",
+      "file": "mascot_cute_baby_dragon.png",
+      "name": "Rồng Sữa Mini Kính Tròn",
+      "category": "cute",
+      "tag": "Cute"
+    },
+    {
+      "id": "bundled-cute-laffey",
+      "file": "mascot_cute_laffey.png",
+      "name": "Thỏ Ngủ Gật Laffey",
+      "category": "cute",
+      "tag": "Cute"
+    },
+    {
+      "id": "bundled-cute-cheshire",
+      "file": "mascot_cute_cheshire.png",
+      "name": "Mèo Hầu Gái Cheshire",
+      "category": "cute",
+      "tag": "Cute"
+    },
+    {
+      "id": "bundled-cool-musashi",
+      "file": "mascot_cool_musashi.png",
+      "name": "Lôi Thần Hồ Ly Musashi",
+      "category": "cool",
+      "tag": "Ngầu"
+    },
+    {
+      "id": "bundled-cool-bremerton",
+      "file": "mascot_cool_bremerton.png",
+      "name": "Nữ Sinh Streetwear Bremerton",
+      "category": "cool",
+      "tag": "Cá Tính"
+    },
+    {
+      "id": "bundled-bold-cyber-bunny",
+      "file": "mascot_bold_cyber_bunny.png",
+      "name": "Thỏ Đen Cyber Bunny",
+      "category": "bold",
+      "tag": "Táo Bạo"
+    },
+    {
+      "id": "bundled-bold-nj-bunny",
+      "file": "mascot_bold_nj_bunny.png",
+      "name": "Thỏ Neon New Jersey",
+      "category": "bold",
+      "tag": "Táo Bạo"
+    },
+    {
+      "id": "bundled-bold-taihou-party",
+      "file": "mascot_bold_taihou_party.png",
+      "name": "Nữ Hoàng Đầm Đỏ Taihou",
+      "category": "bold",
+      "tag": "Quyến Rũ"
+    },
+    {
+      "id": "bundled-bold-eugen-summer",
+      "file": "mascot_bold_eugen_summer.png",
+      "name": "Nữ Thần Biển Hè Eugen",
+      "category": "bold",
+      "tag": "Táo Bạo"
+    },
+    {
+      "id": "bundled-bold-atago-summer",
+      "file": "mascot_bold_atago_summer.png",
+      "name": "Mỹ Nhân Bãi Biển Atago",
+      "category": "bold",
+      "tag": "Quyến Rũ"
+    }
+  ]
+}

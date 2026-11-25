@@ -16,6 +16,9 @@ import {
 
 export default function TopBar({
   cdpStatus,
+  desktopStatus,
+  desktopEnabled = false,
+  desktopTheme,
   enabled,
   unifiedFullWindow = true,
   rightPreviewOpen = true,
@@ -23,6 +26,7 @@ export default function TopBar({
   ideTheme,
   busyAction,
   onToggleUnified,
+  onToggleDesktop,
   onToggleRightPreview,
   onImportFiles,
   onCapture,
@@ -40,9 +44,9 @@ export default function TopBar({
     : `Chat: ${chatTheme?.name || '—'} · IDE: ${ideTheme?.name || '—'}`;
 
   return (
-    <header className="topbar">
+    <header className="topbar" data-tauri-drag-region>
       {/* Left: Unified vs Split Pills + Active Theme Readout (Exact Video Match!) */}
-      <div className="topbar-left">
+      <div className="topbar-left" data-tauri-drag-region>
         <div className="topbar-mode-seg" title="Chuyển nhanh giữa 1 nền đồng bộ toàn màn hình hoặc tách riêng Chat & IDE">
           <button
             type="button"
@@ -74,6 +78,20 @@ export default function TopBar({
           <Monitor size={11} />
           <span>{screenRes}</span>
         </div>
+
+        <button
+          type="button"
+          className={`btn btn-sm ${desktopEnabled ? 'btn-desktop-on' : ''}`}
+          onClick={onToggleDesktop}
+          title={
+            desktopEnabled
+              ? `Hình nền động Desktop đang BẬT (${desktopTheme?.name || 'Live'}${desktopStatus?.autoPaused ? ' · Tự nghỉ GPU' : desktopStatus?.manualPaused ? ' · Tạm dừng' : ''}) — Bấm để tắt`
+              : `Bật hình nền động Windows Desktop (${desktopTheme?.name || chatTheme?.name || 'Theme hiện tại'})`
+          }
+        >
+          <Monitor size={12} />
+          <span>{desktopEnabled ? 'Desktop ON' : 'Desktop'}</span>
+        </button>
 
         <button
           type="button"

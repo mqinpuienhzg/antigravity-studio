@@ -23,6 +23,7 @@ export default function Sidebar({
   activeTab,
   onSelectTab,
   cdpStatus,
+  desktopStatus,
   mediaPort,
   appLogoUrl,
   config,
@@ -65,8 +66,8 @@ export default function Sidebar({
             {appLogoUrl ? <img src={appLogoUrl} alt="Antigravity" /> : <Sparkles size={15} />}
           </div>
           <div style={{ minWidth: 0, flex: 1 }}>
-            <div className="brand-title">Antigravity Studio</div>
-            <div className="sidebar-brand-sub">BY MQINPUIENHZG · v11.2</div>
+            <div className="brand-title">Antigravity Studio Rust</div>
+            <div className="sidebar-brand-sub">BY MQINPUIENHZG · RUST v12</div>
           </div>
         </div>
 
@@ -158,6 +159,12 @@ export default function Sidebar({
             <span>IDE Workbench</span>
             <span className={`status-ver-tag ${cdpStatus?.ideConnected ? 'on' : ''}`}>
               ● {cdpStatus?.ideConnected ? 'v11' : 'chờ'}
+            </span>
+          </div>
+          <div className="sidebar-status-row">
+            <span>Desktop Live</span>
+            <span className={`status-ver-tag ${desktopStatus?.active ? 'on' : ''}`}>
+              ● {desktopStatus?.active ? (desktopStatus?.manualPaused ? 'dừng' : desktopStatus?.autoPaused ? 'ngủ GPU' : 'chạy') : 'tắt'}
             </span>
           </div>
           <div className="sidebar-status-row">

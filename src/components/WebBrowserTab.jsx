@@ -263,15 +263,55 @@ export default function WebBrowserTab({
         </span>
       </div>
 
-      {/* Live Embedded Chromium Webview */}
+      {/* Live Embedded Webview (Electron) or Ultra-Light Rust Web Launcher & Direct Grabber (Tauri v2) */}
       <div className="browser-webview-wrap">
-        <webview
-          ref={webviewRef}
-          src={QUICK_SITES[0].url}
-          allowpopups="true"
-          className="browser-webview"
-          style={{ width: '100%', height: '100%' }}
-        />
+        {window.studioAPI?.isRustTauri ? (
+          <div
+            style={{
+              height: '100%',
+              display: 'flex',
+              flexDirection: 'column',
+              alignItems: 'center',
+              justifyContent: 'center',
+              gap: 14,
+              padding: 28,
+              textAlign: 'center',
+              background: 'rgba(8, 10, 20, 0.72)',
+            }}
+          >
+            <Globe size={34} color="var(--studio-accent)" />
+            <div style={{ fontSize: 15, fontWeight: 700, color: '#fff' }}>
+              Trình Tải Nhanh Siêu Nhẹ (Rust + Tauri v2)
+            </div>
+            <div style={{ maxWidth: 520, fontSize: 12.5, color: 'var(--ink-secondary)', lineHeight: 1.55 }}>
+              Để giữ RAM chạy nền siêu nhẹ (~15 MB), bản Rust mở kho hình nền bằng trình duyệt mặc định của bạn.
+              Chỉ cần <strong>dán link video (.mp4/.webm/YouTube)</strong> vào thanh địa chỉ phía trên rồi bấm{' '}
+              <strong>Tải Video Trang</strong>, hoặc tải về và <strong>kéo thả trực tiếp vào cửa sổ Studio</strong>!
+            </div>
+            <div style={{ display: 'flex', flexWrap: 'wrap', gap: 8, justifyContent: 'center', marginTop: 4 }}>
+              <button
+                type="button"
+                className="btn btn-primary btn-sm"
+                onClick={() => window.studioAPI?.openExternalUrl?.(currentUrl || urlInput)}
+              >
+                <ExternalLink size={12} />
+                <span>Mở {QUICK_SITES.find((s) => s.id === activeSite)?.label || 'Trang hiện tại'} trên trình duyệt</span>
+              </button>
+              <button type="button" className="btn btn-sm" onClick={onOpenExtraFolder}>
+                <FolderOpen size={12} />
+                <span>Mở thư mục Extra Themes</span>
+              </button>
+            </div>
+          </div>
+        ) : (
+          <webview
+            ref={webviewRef}
+            src={QUICK_SITES[0].url}
+            allowpopups="true"
+            className="browser-webview"
+            style={{ width: '100%', height: '100%' }}
+          />
+        )}
       </div>
     </section>
   );

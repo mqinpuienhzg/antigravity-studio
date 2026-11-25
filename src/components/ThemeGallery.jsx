@@ -7,6 +7,7 @@ import {
   FolderOpen,
   FolderPlus,
   MessageSquare,
+  Monitor,
   RefreshCw,
   Search,
   Star,
@@ -19,10 +20,12 @@ function ThemeCard({
   unifiedFullWindow,
   isChatActive,
   isIdeActive,
+  isDesktopActive,
   inPlaylist,
   onSetUnified,
   onSetChat,
   onSetIde,
+  onSetDesktop,
   onHoverTheme,
   onTogglePlaylist,
   onDelete,
@@ -131,10 +134,11 @@ function ThemeCard({
 
         {/* Bottom Overlay: Active State Tag + File Size */}
         <div className="thumb-bottom-row">
-          <div style={{ display: 'flex', gap: 4 }}>
+          <div style={{ display: 'flex', gap: 4, flexWrap: 'wrap' }}>
             {isUnifiedActive && <span className="mini-badge chat-on">Đang Dùng</span>}
             {!unifiedFullWindow && isChatActive && <span className="mini-badge split-chat">Đang Dùng Chat</span>}
             {!unifiedFullWindow && isIdeActive && <span className="mini-badge split-ide">Đang Dùng IDE</span>}
+            {isDesktopActive && <span className="mini-badge desktop-on">Desktop</span>}
           </div>
           <span className="theme-size-pill">{formatBytes(theme.fileSize)}</span>
         </div>
@@ -146,35 +150,49 @@ function ThemeCard({
           {theme.name}
         </div>
 
-        {unifiedFullWindow ? (
+        <div className="theme-card-actions-row">
+          {unifiedFullWindow ? (
+            <button
+              type="button"
+              className={`card-apply-full ${isUnifiedActive ? 'active' : ''}`}
+              onClick={() => onSetUnified(theme)}
+            >
+              <Check size={11} strokeWidth={2.6} />
+              <span>{isUnifiedActive ? 'Đang dùng' : 'Áp dụng'}</span>
+            </button>
+          ) : (
+            <div className="theme-split-btns" style={{ flex: 1 }}>
+              <button
+                type="button"
+                className={`assign-btn ${isChatActive ? 'active-chat' : ''}`}
+                onClick={() => onSetChat(theme)}
+              >
+                <MessageSquare size={10} />
+                <span>Đặt Chat</span>
+              </button>
+              <button
+                type="button"
+                className={`assign-btn ${isIdeActive ? 'active-ide' : ''}`}
+                onClick={() => onSetIde(theme)}
+              >
+                <Code2 size={10} />
+                <span>Đặt IDE</span>
+              </button>
+            </div>
+          )}
           <button
             type="button"
-            className={`card-apply-full ${isUnifiedActive ? 'active' : ''}`}
-            onClick={() => onSetUnified(theme)}
+            className={`card-desktop-btn ${isDesktopActive ? 'active' : ''}`}
+            onClick={() => onSetDesktop?.(theme)}
+            title={
+              isDesktopActive
+                ? 'Đang làm hình nền động Windows Desktop (bấm để tắt)'
+                : 'Đặt làm hình nền động Windows Desktop'
+            }
           >
-            <Check size={11} strokeWidth={2.6} />
-            <span>{isUnifiedActive ? 'Đang dùng' : 'Áp dụng'}</span>
+            <Monitor size={12} />
           </button>
-        ) : (
-          <div className="theme-split-btns">
-            <button
-              type="button"
-              className={`assign-btn ${isChatActive ? 'active-chat' : ''}`}
-              onClick={() => onSetChat(theme)}
-            >
-              <MessageSquare size={10} />
-              <span>Đặt Chat</span>
-            </button>
-            <button
-              type="button"
-              className={`assign-btn ${isIdeActive ? 'active-ide' : ''}`}
-              onClick={() => onSetIde(theme)}
-            >
-              <Code2 size={10} />
-              <span>Đặt IDE</span>
-            </button>
-          </div>
-        )}
+        </div>
       </div>
     </div>
   );
@@ -183,12 +201,14 @@ function ThemeCard({
 export default function ThemeGallery({
   themes,
   config,
+  desktopThemeId,
   extraThemesDir,
   comboCount = 0,
   initialFilter = 'all',
   onSetUnified,
   onSetChat,
   onSetIde,
+  onSetDesktop,
   onHoverTheme,
   onTogglePlaylist,
   onImportFiles,
@@ -352,10 +372,12 @@ export default function ThemeGallery({
               unifiedFullWindow={config.unifiedFullWindow !== false}
               isChatActive={config.chatThemeId === theme.id}
               isIdeActive={config.ideThemeId === theme.id}
+              isDesktopActive={Boolean(config.desktopWallpaperEnabled && desktopThemeId === theme.id)}
               inPlaylist={playlistSet.has(theme.id)}
               onSetUnified={onSetUnified}
               onSetChat={onSetChat}
               onSetIde={onSetIde}
+              onSetDesktop={onSetDesktop}
               onHoverTheme={onHoverTheme}
               onTogglePlaylist={onTogglePlaylist}
               onDelete={onDeleteTheme}
