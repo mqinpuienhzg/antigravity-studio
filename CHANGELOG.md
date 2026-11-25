@@ -1,5 +1,8 @@
 # Changelog
 
+## [12.1.0] — 2026-11-26
+- **Native Rust Win32 `WorkerW` Live Desktop Wallpaper (`desktop_wallpaper.rs`):** Khôi phục hoàn chỉnh tính năng đặt video 60FPS / ảnh 2K làm hình nền động trực tiếp cho màn hình Windows Desktop (nút `Desktop` trên thanh trên cùng & từng thẻ chủ đề), hỗ trợ Windows 10 & Windows 11, tự nghỉ GPU khi mở game/ứng dụng toàn màn hình (`desktopSmartPause`) và tự khôi phục nền gốc Windows sạch sẽ khi tắt.
+
 ## [12.0.0] — 2026-11-26 (Rust + Tauri v2 Rewrite)
 - **Native Rust Backend (`src-tauri/src/`):** Viết lại hoàn toàn toàn bộ backend từ Electron/Node.js sang **Rust + Tauri v2** (nhị phân native chỉ **`6.62 MB`**, bộ cài Windows NSIS đầy đủ 29 video live HD chỉ **`73.06 MB`** thay vì `186 MB`).
 - **Ultra-Low-RAM System Tray Daemon (`8.10 MB` Private RAM):** Khi đóng cửa sổ về khay hệ thống hoặc khởi động cùng Windows (`--tray`), cửa sổ WebView2 tự hủy hoàn toàn để giải phóng RAM, chỉ giữ tiến trình Rust nền (`8.10 MB` Private RAM so với `812.34 MB` ở bản Electron), bấm icon khay hệ thống bật lại cửa sổ trong **`0.18 giây`**.

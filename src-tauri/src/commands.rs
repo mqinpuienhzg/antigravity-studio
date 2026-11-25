@@ -23,16 +23,7 @@ pub async fn studio_get_state(state: State<'_, AppState>) -> Result<Value, Strin
             "onlineBins".into(),
             serde_json::to_value(bins).unwrap_or(Value::Null),
         );
-        obj.insert(
-            "desktopStatus".into(),
-            json!({
-                "supported": false,
-                "active": false,
-                "paused": false,
-                "autoPaused": false,
-                "manualPaused": false
-            }),
-        );
+        obj.insert("desktopStatus".into(), state.desktop.get_status());
     }
     Ok(ui)
 }
@@ -40,9 +31,10 @@ pub async fn studio_get_state(state: State<'_, AppState>) -> Result<Value, Strin
 #[tauri::command]
 pub async fn studio_update_config(
     patch: Value,
+    app: AppHandle,
     state: State<'_, AppState>,
 ) -> Result<Value, String> {
-    let (ui, runtime, enabled, auto_apply) = {
+    let (ui, runtime, desktop_state, enabled, auto_apply, desktop_on) = {
         let mut s = state.store.lock().map_err(|_| "store lock".to_string())?;
         let prev_chat = s
             .config
@@ -72,11 +64,18 @@ pub async fn studio_update_config(
             .get("autoApplyOnChange")
             .and_then(|v| v.as_bool())
             .unwrap_or(true);
+        let desktop_on = s
+            .config
+            .get("desktopWallpaperEnabled")
+            .and_then(|v| v.as_bool())
+            .unwrap_or(false);
         (
             s.get_full_state_for_ui(),
             s.build_runtime_payload_state(),
+            s.build_desktop_wallpaper_state(),
             enabled,
             auto_apply,
+            desktop_on,
         )
     };
 
@@ -87,6 +86,9 @@ pub async fn studio_update_config(
         } else {
             let _ = state.cdp.disable_all().await;
         }
+    }
+    if desktop_on {
+        let _ = state.desktop.apply(&app, state.media_server.port(), desktop_state);
     }
     Ok(ui)
 }
@@ -759,6 +761,69 @@ pub async fn studio_open_external_url(url: String, app: AppHandle) -> Result<Val
         .open_url(&url, None::<&str>)
         .map_err(|e| e.to_string())?;
     Ok(json!({ "ok": true }))
+}
+
+#[tauri::command]
+pub async fn studio_desktop_status(state: State<'_, AppState>) -> Result<Value, String> {
+    Ok(state.desktop.get_status())
+}
+
+#[tauri::command]
+pub async fn studio_set_desktop_wallpaper(
+    theme_id: String,
+    app: AppHandle,
+    state: State<'_, AppState>,
+) -> Result<Value, String> {
+    let (ui, desktop_state) = {
+        let mut s = state.store.lock().map_err(|_| "store lock".to_string())?;
+        s.save_config(&json!({
+            "desktopThemeId": theme_id,
+            "desktopWallpaperEnabled": true,
+            "desktopSyncWithIde": false
+        }));
+        (s.get_full_state_for_ui(), s.build_desktop_wallpaper_state())
+    };
+    match state
+        .desktop
+        .apply(&app, state.media_server.port(), desktop_state)
+    {
+        Ok(status) => Ok(json!({ "ok": true, "status": status, "state": ui })),
+        Err(e) => Ok(json!({ "ok": false, "error": e, "status": state.desktop.get_status(), "state": ui })),
+    }
+}
+
+#[tauri::command]
+pub async fn studio_toggle_desktop_wallpaper(
+    enable: bool,
+    app: AppHandle,
+    state: State<'_, AppState>,
+) -> Result<Value, String> {
+    let (ui, desktop_state) = {
+        let mut s = state.store.lock().map_err(|_| "store lock".to_string())?;
+        s.save_config(&json!({ "desktopWallpaperEnabled": enable }));
+        (s.get_full_state_for_ui(), s.build_desktop_wallpaper_state())
+    };
+    if enable {
+        match state
+            .desktop
+            .apply(&app, state.media_server.port(), desktop_state)
+        {
+            Ok(status) => Ok(json!({ "ok": true, "status": status, "state": ui })),
+            Err(e) => Ok(json!({ "ok": false, "error": e, "status": state.desktop.get_status(), "state": ui })),
+        }
+    } else {
+        let status = state.desktop.stop(&app);
+        Ok(json!({ "ok": true, "status": status, "state": ui }))
+    }
+}
+
+#[tauri::command]
+pub async fn studio_toggle_desktop_pause(
+    app: AppHandle,
+    state: State<'_, AppState>,
+) -> Result<Value, String> {
+    let status = state.desktop.toggle_pause(&app);
+    Ok(json!({ "ok": true, "status": status }))
 }
 
 #[tauri::command]

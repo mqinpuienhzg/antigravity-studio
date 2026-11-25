@@ -2,12 +2,14 @@
 
 mod cdp_bridge;
 mod commands;
+mod desktop_wallpaper;
 mod downloader;
 mod ide_sync;
 mod media_server;
 mod store;
 
 use cdp_bridge::CdpBridge;
+use desktop_wallpaper::DesktopWallpaperManager;
 use media_server::LocalMediaServer;
 use serde_json::json;
 use std::{
@@ -33,6 +35,7 @@ const TRAY_ICON_PNG: &[u8] = include_bytes!("../icons/32x32.png");
 pub struct AppState {
     pub store: Arc<Mutex<StudioStore>>,
     pub cdp: CdpBridge,
+    pub desktop: DesktopWallpaperManager,
     pub media_server: LocalMediaServer,
     pub resource_dir: Option<PathBuf>,
     pub log_path: PathBuf,
@@ -235,6 +238,7 @@ fn setup_tray(app: &AppHandle) -> Result<(), Box<dyn std::error::Error>> {
             "quit" => {
                 if let Some(st) = app.try_state::<AppState>() {
                     st.is_quitting.store(true, Ordering::SeqCst);
+                    st.desktop.stop(app);
                     cleanup_instance_file(&st.instance_path);
                 }
                 app.exit(0);
@@ -463,10 +467,43 @@ pub fn run() {
                 }
             });
 
+            let desktop = DesktopWallpaperManager::new();
+            let desktop_for_srv = desktop.clone();
+            let store_for_srv = store.clone();
+            media_server.set_desktop_state_provider(Arc::new(move || {
+                let latest = desktop_for_srv.latest_state_json();
+                if latest.get("theme").is_some() {
+                    latest
+                } else {
+                    store_for_srv
+                        .lock()
+                        .map(|s| s.build_desktop_wallpaper_state())
+                        .unwrap_or_else(|_| json!({}))
+                }
+            }));
+            desktop.start_smart_pause_watcher(app_handle.clone());
+
+            let auto_desktop = store
+                .lock()
+                .ok()
+                .and_then(|s| {
+                    let on = s
+                        .config
+                        .get("desktopWallpaperEnabled")
+                        .and_then(|v| v.as_bool())
+                        .unwrap_or(false);
+                    if on {
+                        Some(s.build_desktop_wallpaper_state())
+                    } else {
+                        None
+                    }
+                });
+
             app.manage(AppState {
                 store,
                 cdp,
-                media_server,
+                desktop: desktop.clone(),
+                media_server: media_server.clone(),
                 resource_dir,
                 log_path,
                 instance_path,
@@ -476,6 +513,10 @@ pub fn run() {
             });
 
             setup_tray(&app_handle)?;
+
+            if let Some(d_state) = auto_desktop {
+                let _ = desktop.apply(&app_handle, media_server.port(), d_state);
+            }
 
             if !start_hidden {
                 reveal_or_create_main_window(&app_handle);
@@ -521,6 +562,10 @@ pub fn run() {
             commands::studio_rescan_extra_themes,
             commands::studio_toggle_startup,
             commands::studio_open_external_url,
+            commands::studio_desktop_status,
+            commands::studio_set_desktop_wallpaper,
+            commands::studio_toggle_desktop_wallpaper,
+            commands::studio_toggle_desktop_pause,
             commands::window_minimize,
             commands::window_maximize,
             commands::window_close,

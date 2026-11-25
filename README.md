@@ -4,7 +4,7 @@
 
 **Clear Optical Liquid Glass & 60FPS Live Video Customizer cho Google Antigravity IDE & Chat — Viết lại bằng Rust + Tauri v2**
 
-[![Version](https://img.shields.io/badge/version-12.0.0--rust-f97316?style=for-the-badge&logo=rust)](https://github.com/mqinpuienhzg/antigravity-studio/releases)
+[![Version](https://img.shields.io/badge/version-12.1.0--rust-f97316?style=for-the-badge&logo=rust)](https://github.com/mqinpuienhzg/antigravity-studio/releases)
 [![Framework](https://img.shields.io/badge/Tauri-v2%20%2B%20WebView2-24c8db?style=for-the-badge&logo=tauri)](https://tauri.app/)
 [![Platform](https://img.shields.io/badge/platform-Windows%2010%2F11%20x64-0ea5e9?style=for-the-badge&logo=windows)](https://github.com/mqinpuienhzg/antigravity-studio)
 [![License](https://img.shields.io/badge/license-MIT-10b981?style=for-the-badge)](LICENSE)
@@ -46,6 +46,9 @@
 - **💎 Clear Optical Liquid Glass (Kính Pha Lê Trong Suốt):**
   - Nhìn xuyên thẳng xuống video nền 60FPS không bị lớp nền trắng đục, ẩn sạch thanh mờ Titlebar, Statusbar và vệt bóng dọc mép Chat ở mức `0%`.
   - Kiến trúc **1-Video Pass-Through** giữ IDE và Chat khớp tuyệt đối `0px` khi phóng to, thu nhỏ hoặc zoom.
+- **🖥️ Hình Nền Động Windows Desktop Tích Hợp (`desktop_wallpaper.rs`):**
+  - Đặt trực tiếp 29 video live HD 60FPS hoặc video cá nhân làm **hình nền động Windows Desktop** phía sau icon thông qua Win32 `WorkerW` (hỗ trợ Windows 10 & Windows 11).
+  - Tự động **tạm nghỉ GPU (`desktopSmartPause`)** khi mở game hoặc ứng dụng toàn màn hình và tự khôi phục nền gốc Windows khi tắt.
 - **🖥️ Xem Trước Trực Tiếp Cạnh Phải & Linh Vật Tương Tác:**
   - Khung xem trước chia đôi hiển thị đồng thời IDE + Chat ngay khi kéo thanh trượt.
   - 13 linh vật tương tác tự nhiên: dõi chuột, xoa đầu ửng má, phản ứng đa dạng theo vùng chạm, kéo thả mượt & tự lưu vị trí.

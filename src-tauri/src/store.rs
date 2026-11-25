@@ -1305,6 +1305,42 @@ impl StudioStore {
         })
     }
 
+    pub fn build_desktop_wallpaper_state(&self) -> Value {
+        let themes = self.get_all_themes();
+        let sync_ide = self
+            .config
+            .get("desktopSyncWithIde")
+            .and_then(|v| v.as_bool())
+            .unwrap_or(false);
+        let desired_id = if sync_ide {
+            self.config
+                .get("chatThemeId")
+                .or_else(|| self.config.get("ideThemeId"))
+                .or_else(|| self.config.get("desktopThemeId"))
+                .and_then(|v| v.as_str())
+                .unwrap_or("")
+        } else {
+            self.config
+                .get("desktopThemeId")
+                .or_else(|| self.config.get("chatThemeId"))
+                .or_else(|| self.config.get("ideThemeId"))
+                .and_then(|v| v.as_str())
+                .unwrap_or("")
+        };
+        let theme = themes
+            .iter()
+            .find(|t| t.get("id").and_then(|v| v.as_str()) == Some(desired_id))
+            .or_else(|| themes.first())
+            .cloned()
+            .unwrap_or(Value::Null);
+        json!({
+            "config": self.config,
+            "theme": theme,
+            "mediaServerPort": self.media_server.port(),
+            "ts": now_ms()
+        })
+    }
+
     pub fn get_full_state_for_ui(&self) -> Value {
         let themes = self.get_all_themes();
         let theme_map: HashMap<String, &Value> = themes

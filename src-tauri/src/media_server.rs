@@ -22,12 +22,16 @@ use tokio::{
 use tokio_util::io::ReaderStream;
 
 pub type ControlCallback = Arc<dyn Fn(&str) -> Value + Send + Sync>;
+pub type DesktopStateProvider = Arc<dyn Fn() -> Value + Send + Sync>;
+
+const DESKTOP_WALLPAPER_HTML: &str = include_str!("../resources/desktop-wallpaper.html");
 
 struct InnerServer {
     port: u16,
     registry: RwLock<HashMap<String, PathBuf>>,
     control_token: RwLock<String>,
     on_control: RwLock<Option<ControlCallback>>,
+    desktop_state_provider: RwLock<Option<DesktopStateProvider>>,
 }
 
 #[derive(Clone)]
@@ -93,12 +97,15 @@ impl LocalMediaServer {
                 registry: RwLock::new(HashMap::new()),
                 control_token: RwLock::new(String::new()),
                 on_control: RwLock::new(None),
+                desktop_state_provider: RwLock::new(None),
             }),
         };
 
         let app = Router::new()
             .route("/health", get(handle_health))
             .route("/media/{id}", any(handle_media))
+            .route("/__studio/desktop-wallpaper.html", get(handle_desktop_html))
+            .route("/__studio/desktop-state", get(handle_desktop_state))
             .route("/__studio/{action}", any(handle_control))
             .with_state(server.clone());
 
@@ -119,6 +126,12 @@ impl LocalMediaServer {
         }
         if let Ok(mut f) = self.inner.on_control.write() {
             *f = Some(cb);
+        }
+    }
+
+    pub fn set_desktop_state_provider(&self, provider: DesktopStateProvider) {
+        if let Ok(mut p) = self.inner.desktop_state_provider.write() {
+            *p = Some(provider);
         }
     }
 
@@ -147,6 +160,31 @@ impl LocalMediaServer {
 async fn handle_health(State(state): State<LocalMediaServer>) -> Response {
     let count = state.inner.registry.read().map(|m| m.len()).unwrap_or(0);
     let mut resp = Json(json!({ "ok": true, "count": count })).into_response();
+    apply_cors_headers(resp.headers_mut());
+    resp
+}
+
+async fn handle_desktop_html() -> Response {
+    let mut resp = Response::builder()
+        .status(StatusCode::OK)
+        .header(header::CONTENT_TYPE, "text/html; charset=utf-8")
+        .header(header::CACHE_CONTROL, "no-cache")
+        .body(Body::from(DESKTOP_WALLPAPER_HTML))
+        .unwrap_or_else(|_| StatusCode::INTERNAL_SERVER_ERROR.into_response());
+    apply_cors_headers(resp.headers_mut());
+    resp
+}
+
+async fn handle_desktop_state(State(state): State<LocalMediaServer>) -> Response {
+    let data = state
+        .inner
+        .desktop_state_provider
+        .read()
+        .ok()
+        .and_then(|g| g.as_ref().cloned())
+        .map(|f| f())
+        .unwrap_or_else(|| json!({}));
+    let mut resp = Json(data).into_response();
     apply_cors_headers(resp.headers_mut());
     resp
 }

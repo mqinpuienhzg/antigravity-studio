@@ -79,22 +79,10 @@ if (typeof window !== 'undefined' && !window.studioAPI && isTauriRuntime()) {
     toggleStartup: (enable) => invoke('studio_toggle_startup', { enable }),
     openExternalUrl: (url) => invoke('studio_open_external_url', { url }),
 
-    getDesktopStatus: async () => ({
-      supported: false,
-      active: false,
-      paused: false,
-      autoPaused: false,
-      manualPaused: false,
-    }),
-    setDesktopWallpaper: async () => ({
-      ok: false,
-      error: 'Hình nền Windows Desktop đang dành cho bản nâng cấp tiếp theo của Rust edition.',
-    }),
-    toggleDesktopWallpaper: async () => ({
-      ok: false,
-      error: 'Hình nền Windows Desktop đang dành cho bản nâng cấp tiếp theo của Rust edition.',
-    }),
-    toggleDesktopPause: async () => ({ ok: false }),
+    getDesktopStatus: () => invoke('studio_desktop_status'),
+    setDesktopWallpaper: (themeId) => invoke('studio_set_desktop_wallpaper', { themeId }),
+    toggleDesktopWallpaper: (enable) => invoke('studio_toggle_desktop_wallpaper', { enable }),
+    toggleDesktopPause: () => invoke('studio_toggle_desktop_pause'),
 
     getPathForFile: (file) => file?.path || '',
 
